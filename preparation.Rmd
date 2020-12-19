@@ -49,7 +49,7 @@ library(sf)
 
 Now, download the ZIP file with sample data from:
 
-...
+https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/data.zip
 
 The file contains two Shapefiles and one Geodatabase (Table \@ref(tab:sample-data)). 
 

@@ -39,7 +39,7 @@ Table: (\#tab:sample-data) Sample data
 
 The data and code for this lecture can be downloaded from:
 
-...
+https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/data.zip
 
 For more details on setting up the environment and sample data, see the [preparation](preparation.html) document.
 
