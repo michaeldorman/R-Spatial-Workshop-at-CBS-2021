@@ -1,0 +1,130 @@
+---
+title: | 
+    | **Using R for Spatial Data Analysis**
+    | Israel Central Bureau of Statistics
+    | `2021-01-19`
+author: |
+    | Michael Dorman
+    | **Geography and Environmental Development**
+    | dorman@post.bgu.ac.il
+output: 
+  bookdown::html_document2:
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: false
+    toc_depth: 3
+    theme: united
+    number_sections: false
+pagetitle: Using R for Spatial Data Analysis
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = FALSE, echo = TRUE, collapse = TRUE, fig.align = "center")
+```
+
+# Introduction
+
+This is an exercise and checklist to make sure that your system is correctly set up for the [Using R for Spatial Data Analysis](index.html) lecture. 
+
+# Setting up R environemnt
+
+To setup the R environment:
+
+* Install R
+* Install RStudio
+* In R, install the `sf` package:
+
+```{r, eval=FALSE}
+install.packages("sf")
+```
+
+You should be able to load the `sf` package and see a message as follows:
+
+```{r}
+library(sf)
+```
+
+# Sample data {-}
+
+Now, download the ZIP file with sample data from:
+
+...
+
+The file contains two Shapefiles and one Geodatabase (Table \@ref(tab:sample-data)). 
+
+| Data | File(s) | Format | Source | 
+|----|----|----|------|
+| "Nafot"           | `nafot.shp` (+7)                      | Shapefile | https://www.gov.il/he/Departments/Guides/info-gis |
+| Railways          | `RAIL_STRATEGIC.shp` (+7)             | Shapefile | https://data.gov.il/dataset/rail_strategic | 
+| Statistical areas | `statisticalareas_demography2018.gdb` | GDB       | https://www.cbs.gov.il/he/Pages/geo-layers.aspx |
+
+Table: (\#tab:sample-data) Sample data
+
+Extract the contents of the ZIP file and set the working directory to that location using an expression such as (use your own path):
+
+```{r, eval=FALSE}
+setwd("C:\\Data\\CSB")
+```
+
+# Reading the layers
+
+If all worked well, the following expressions will import the three layers into R. 
+
+**Note that the file names are prefixed with `data/` because, in my case the layers are in a sub-directory named `data` inside the working directory.**
+
+```{r}
+nafot = st_read("data/nafot.shp")
+rail = st_read("data/RAIL_STRATEGIC.shp")
+stat = st_read("data/statisticalareas_demography2018.gdb")
+```
+
+Note that the file names are prefixed with `data/` because, in my case the layers are in a sub-directory named `data` inside the working directory. If the files are in the working directory, use just the file name instead:
+
+```{r, eval=FALSE}
+nafot = st_read("nafot.shp")
+rail = st_read("RAIL_STRATEGIC.shp")
+stat = st_read("statisticalareas_demography2018.gdb")
+```
+
+# Plotting the layers
+
+Let's try to plot the layers:
+
+```{r}
+plot(nafot, key.width = lcm(4))
+```
+
+```{r}
+plot(rail)
+```
+
+```{r}
+plot(stat)
+```
+
+# Using Hebrew text in R
+
+Finally, to make sure that we can work with Hebrew in R, try to subset the *active* railway lines with the following expression:
+
+```{r}
+rail = rail[rail$ISACTIVE == "פעיל", ]
+rail
+```
+
+And plot:
+
+```{r}
+plot(rail)
+```
+
+# Prerequisites
+
+To follow the code examples in the [lecture](index.html), you should be familiar with the following topics aspects of the R language: 
+
+* Installing R and RStudio
+* Installing and loading packages
+* Working with vectors, `matrix` and `data.frame`
+* Arithmetic operators (`+`, `-`, ...)
+* Conditional operators (`<`, `==`, ...)
+* Subsetting (`[`, `$`)
