@@ -128,3 +128,4 @@ To follow the code examples in the [lecture](index.html), you should be familiar
 * Arithmetic operators (`+`, `-`, ...)
 * Conditional operators (`<`, `==`, ...)
 * Subsetting (`[`, `$`)
+
