@@ -25,7 +25,7 @@ knitr::opts_chunk$set(cache = FALSE, echo = TRUE, collapse = TRUE, fig.align = "
 
 # Introduction
 
-This is an exercise and checklist to make sure that your system is correctly set up for the [Using R for Spatial Data Analysis](index.html) lecture. 
+This is an exercise and checklist to make sure that your system is correctly set up for the [Using R for Spatial Data Analysis](main.html) lecture. 
 
 # Setting up R environemnt
 
@@ -120,7 +120,7 @@ plot(rail)
 
 # Prerequisites
 
-To follow the code examples in the [lecture](index.html), you should be familiar with the following topics aspects of the R language: 
+To follow the code examples in the [lecture](main.html), you should be familiar with the following topics aspects of the R language: 
 
 * Installing R and RStudio
 * Installing and loading packages
