@@ -19,7 +19,7 @@ output:
       smooth_scroll: false
     toc_depth: 3
     theme: united
-    number_sections: false
+    number_sections: true
 pagetitle: Using R for Spatial Data Analysis
 ---
 
@@ -41,17 +41,30 @@ The data and code for this lecture can be downloaded from:
 
 https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/data.zip
 
+A script with the R code of this document is available here:
+
+https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/main.R
+
 For more details on setting up the environment and sample data, see the [preparation](preparation.html) document.
 
 # R for Spatial Data Analysis
 
 ## Software for analysis of spatial data
 
-```{r, echo=FALSE, fig.cap="**QGIS**, an example of Graphical User Interface (GUI) software", out.width="100%"}
+Software in general, and software for sptial analysis in particular, is characterized by two types of interfaces:
+
+* Graphical User Interface (GUI) (Figure \@ref(fig:gui))
+* Command Line Interface (CLI) (Figure \@ref(fig:cli))
+
+In a GUI, our interaction with the computer is restricted to the predefined set of input elements, such as buttons, menus, and dialog boxes. In a CLI, we interact with the computer by writing code, which means that our instructions are practically unconstraned. With a CLI, we can give the computer specific instructions to do anything we want. 
+
+R, which we talk about today, is an example of CLI software for working with (among other things) spatial data.
+
+```{r gui, echo=FALSE, fig.cap="**QGIS**, an example of Graphical User Interface (GUI) software", out.width="80%"}
 knitr::include_graphics("images/QGIS.png")
 ```
 
-```{r, echo=FALSE, fig.cap="**R**, an example of Command Line Interface (CLI) software", out.width="100%"}
+```{r cli, echo=FALSE, fig.cap="**R**, an example of Command Line Interface (CLI) software", out.width="80%"}
 knitr::include_graphics("images/R.png")
 ```
 
@@ -62,8 +75,6 @@ knitr::include_graphics("images/R.png")
 ```{r, echo=FALSE, fig.cap="Books on Spatial Data Analysis with R", out.width="100%"}
 knitr::include_graphics("images/books.svg")
 ```
-
-\footnotetext{\url{}}
 
 ## History of spatial analysis in R
 
@@ -107,35 +118,35 @@ Nevertheless, there are situations when *other* tools are needed:
 
 The following sections (\@ref(input-and-output-of-spatial-data)--\@ref(rpostgresql-working-with-postgis)) highlight some of the capabilities of spatial data analysis packages in R, through short examples. 
 
-## Input and output of spatial data {#input-and-output-of-spatial-data}
+## `sf` and `stars` {#input-and-output-of-spatial-data}
 
 Reading spatial layers from a file into an R data structure, or writing the R data structure into a file, are handled by external libraries:
 
-* [**GDAL/OGR**](https://gdal.org/) is used for reading/writing vector and raster files, with `sf` and `stars`
-* [**PROJ**](https://proj.org/) is used for handling CRS, in both `sf` and `stars`
-* Working with specialized formats, e.g., **HDF** with `gdalUtils` or **NetCDF** with `ncdf4`
+* [GDAL/OGR](https://gdal.org/) is used for **reading/writing** vector and raster files, with `sf` and `stars`
+* [PROJ](https://proj.org/) is used for handling **Coordinate Reference Systems (CRS)**, in both `sf` and `stars`
 
-## `sf`: Geoprocessing Vector Layers
+## `sf`: Vector Layers
 
-[GEOS](http://trac.osgeo.org/geos/) is used for geometric operations on **vector layers** with `sf`:
+[GEOS](http://trac.osgeo.org/geos/) is used for geometric operations on *vector layers* with `sf`:
 
 * **Numeric operators**---Area, Length, Distance...
 * **Logical operators**---Contains, Within, Within distance, Crosses, Overlaps, Equals, Intersects, Disjoint, Touches...
-* **Geometry generating operators**---Centroid, Buffer, Intersection, Union, Difference, Convex-Hull, Simplification...
+* **Geometry generating operators**---Centroid, Buffer (Figure \@ref(fig:buffer)), Intersection, Union, Difference, Convex-Hull, Simplification...
 
-```{r, echo=FALSE, results="hide", message=FALSE, fig.cap="Buffer function", fig.width=6, fig.height=2.5, out.width="100%", warning=FALSE}
+```{r buffer, echo=FALSE, results="hide", message=FALSE, fig.cap="Buffer function", fig.width=6, fig.height=2.5, out.width="100%", warning=FALSE}
 library(sf)
 nafot = st_read("data/nafot.shp")
 p = nafot[nafot$name_eng == "Be'er Sheva", ]
 p = st_geometry(p)
-opar = par(mfrow=c(1,3), mar = c(0, 0, 1, 0))
-
-# plot(p %>% st_buffer(100000), main = "No buffer", border = NA)
-# plot(p, add = TRUE)
+opar = par(mfrow=c(1,4), mar = c(0, 0, 1, 0))
 
 plot(p %>% st_buffer(100000), main = "10 km buffer", border = NA)
 plot(p, add = TRUE)
 plot(p %>% st_buffer(10000) %>% st_difference(p), col = "lightgrey", add = TRUE)
+
+plot(p %>% st_buffer(100000), main = "25 km buffer", border = NA)
+plot(p, add = TRUE)
+plot(p %>% st_buffer(25000) %>% st_difference(p), col = "lightgrey", add = TRUE)
 
 plot(p %>% st_buffer(100000), main = "50 km buffer", border = NA)
 plot(p, add = TRUE)
@@ -148,7 +159,7 @@ plot(p %>% st_buffer(100000) %>% st_difference(p), col = "lightgrey", add = TRUE
 par(opar)
 ```
 
-## `stars`: Geoprocessing Rasters
+## `stars`: Rasters
 
 Geometric operations on *rasters* can be done with package `stars`:
 
@@ -157,15 +168,15 @@ Geometric operations on *rasters* can be done with package `stars`:
 * **Changing resolution and extent**---Cropping, Mosaic, Resampling, Reprojection
 * **Transformations**---Raster <-> Points / Contour lines / Polygons
 
-## `gstat`: Geostatistical Modelling
+## `gstat`: Interpolation
 
 Univariate and multivariate geostatistics:
 
 * Variogram modelling 
-* Ordinary and universal point or block (co)kriging
+* Ordinary and universal point or block (co)kriging (Figure \@ref(fig:gstat))
 * Cross-validation
 
-```{r, echo=FALSE, results="hide", message=FALSE, fig.cap="Predicted Zinc concentration, using Ordinary Kriging", out.width="70%"}
+```{r gstat, echo=FALSE, results="hide", message=FALSE, fig.cap="Predicted Zinc concentration, using Ordinary Kriging", out.width="70%"}
 library(gstat)
 library(automap)
 library(stars)
@@ -190,21 +201,21 @@ col = col / 255
 col = rgb(col[1], col[2], col[3], 0.5)
 
 # Plot
-plot(predicted, col = rev(hcl.colors(11, "Spectral")), reset = FALSE, key.pos = 4)
+plot(predicted, col = rev(hcl.colors(11, "Spectral")), reset = FALSE, key.pos = 4, main = NA)
 polygon(meuse.riv, asp = 1, col = col)
 plot(meuse, pch = 1, cex = log(meuse$zinc) / 5, add = TRUE)
 ```
 
-## `spdep`: Spatial dependence models
+## `spdep`: Spatial dependence
 
 Modelling with spatial weights:
 
-* Building neighbor lists and spatial weights
+* Building neighbor lists (Figure \@ref(fig:spdep)) and spatial weights
 * Tests for spatial autocorrelation for areal data (e.g. Moran's I)
 * Spatial regression models (e.g. SAR, CAR)
 
-```{r, echo=FALSE, results="hide", message=FALSE, warning=FALSE, fig.cap="Neighbors list based on regions with contiguous boundaries", fig.width=7, fig.height=3.5, out.width="100%"}
-# From help page of 'poly2nb' function
+```{r spdep, echo=FALSE, results="hide", message=FALSE, warning=FALSE, fig.cap="Neighbors list based on regions with contiguous boundaries", fig.width=7, fig.height=3.5, out.width="100%"}
+# From '?poly2nb'
 library(spdep)
 nc = st_read(system.file("shape/nc.shp", package = "sf"))
 nc = as(nc, "Spatial")
@@ -216,15 +227,15 @@ plot(nb, coordinates(nc), add = TRUE, col = "black")
 par(opar)
 ```
 
-## `spatstat`: Spatial point patterns
+## `spatstat`: Point patterns
 
-Techniques for statistical analysis of spatial point patterns, such as:
+Techniques for statistical analysis of spatial point patterns (Figure \@ref(fig:spatstat)), such as:
 
 * Kernel density estimation
 * Detection of clustering using Ripley's K-function 
 * Spatial logistic regression
     
-```{r, echo=FALSE, results="hide", message=FALSE, warning=FALSE, fig.cap="Distance map for the Biological Cells point pattern dataset", fig.width=4, fig.height=4, out.width="60%"}
+```{r spatstat, echo=FALSE, results="hide", message=FALSE, warning=FALSE, fig.cap="Distance map for the Biological Cells point pattern dataset", fig.width=4, fig.height=4, out.width="50%"}
 library(spatstat)
 data(cells)
 U = distmap(cells)
@@ -234,27 +245,27 @@ plot(cells, add = TRUE, col = "red", pch = 3)
 par(opar)
 ```
 
-## `RPostgreSQL`: Working with PostGIS {#rpostgresql-working-with-postgis}
+## `RPostgreSQL`: PostGIS {#rpostgresql-working-with-postgis}
 
 Package `sf` combined with `RPostgreSQL` can be used to read from, and write to, a **PostGIS** spatial database:
 
 ```{r, eval=FALSE}
-library(sf)
-library(RPostgreSQL)
+# library(sf)
+# library(RPostgreSQL)
 
-con = dbConnect(
-  PostgreSQL(),
-  dbname = "gisdb",
-  host = "159.89.13.241",
-  port = 5432,
-  user = "geobgu",
-  password = "*******"
-)
+# con = dbConnect(
+#   PostgreSQL(),
+#   dbname = "gisdb",
+#   host = "159.89.13.241",
+#   port = 5432,
+#   user = "geobgu",
+#   password = "*******"
+# )
 ```
 
 ```{r, eval=FALSE}
-q = "SELECT name_lat, geometry FROM plants LIMIT 3;"
-st_read(con, query = q)
+# q = "SELECT name_lat, geometry FROM plants LIMIT 3;"
+# st_read(con, query = q)
 ```
 
 ```{r, echo=FALSE}
@@ -288,15 +299,17 @@ st_read(con, query = q)
 
 # Spatial data structures
 
-## What is a vector layer?
+## The `sf` package {#the-sf-package}
 
-```{r, echo=FALSE, fig.cap="Geometry (left) and attributes (right) of vector layers (https://www.neonscience.org/dc-shapefile-attributes-r)", out.width="70%"}
-knitr::include_graphics("images/vector_layers.png")
+The `sf` package (Figure \@ref(fig:sf-r-journal)), released in 2016, is a newer package for working with vector layers in R, which we are going to use in this book. In recent years, `sf` has become the standard package for working with vector data in R, practically replacing `sp`, `rgdal`, and `rgeos`. 
+
+```{r sf-r-journal, echo=FALSE, fig.cap="Pebesma, 2018, The R Journal (https://journal.r-project.org/archive/2018-1/)", out.width="100%"}
+knitr::include_graphics("images/lesson_07_paper1.png")
 ```
 
-## Geometry types
+One of the important innovations in `sf` is a complete implementation of the [**Simple Features**](https://cran.r-project.org/web/packages/sf/vignettes/sf1.html) standard. Since 2003, Simple Features been widely implemented in **spatial databases** (such as **PostGIS**), commercial GIS (e.g., **ESRI ArcGIS**) and forms the vector data basis for libraries such as **GDAL**. The Simple Features standard defines several types of geometries, of which seven are most commonly used in the world of GIS and spatial data analysis (Figure \@ref(fig:geometry-types)). When working with spatial databases, Simple Features are commonly specified as [**Well Known Text (WKT)**](https://en.wikipedia.org/wiki/Well-known_text). A subset of simple features forms the [**GeoJSON**](https://en.wikipedia.org/wiki/GeoJSON) standard.
 
-```{r echo=FALSE, fig.cap="Simple Feature types (see also: https://r-spatial.github.io/sf/articles/sf1.html)", fig.width=6.8, fig.height=4, out.width="80%", warning=FALSE, message=FALSE}
+```{r geometry-types, echo=FALSE, fig.cap="Simple Feature types (see also: https://r-spatial.github.io/sf/articles/sf1.html)", fig.width=6.8, fig.height=4, out.width="80%", warning=FALSE, message=FALSE}
 library(sf)
 library(units)
 point = st_as_sfc("POINT (30 10)")[[1]]
@@ -324,36 +337,13 @@ plot(p, col = "blue", add = TRUE, cex = 1.8, lwd = 2)
 par(opar)
 ```
 
-## File formats
-
-Commonly used vector layer file formats (Table \@ref(tab:vector-formats)) include binary formats (such as the **Shapefile**) and plain text formats (such as **GeoJSON**). Vector layers are also frequently kept in a spatial database, such as **PostgreSQL/PostGIS**. 
-
-| Type | Format | File extension |
-|---|---|---|
-| Binary | ESRI Shapefile | `.shp`, `.shx`, `.dbf`, `.prj`, ... | 
-| | GeoPackage (GPKG) | `.gpkg` |
-| Plain Text | GeoJSON | `.json` or `.geojson` |
-| | GPS Exchange Format (GPX) | `.gpx` |
-| | Keyhole Markup Language (KML) | `.kml` |
-| Spatial Databases | PostGIS / PostgreSQL | |
-
-Table: (\#tab:vector-formats) Common vector layer file formats
-
-## `sf` data structures {#the-sf-package}
-
-The `sf` package (Figure \@ref(fig:sf-r-journal)), released in 2016, is a newer package for working with vector layers in R, which we are going to use in this book. In recent years, `sf` has become the standard package for working with vector data in R, practically replacing `sp`, `rgdal`, and `rgeos`. 
-
-```{r sf-r-journal, echo=FALSE, fig.cap="Pebesma, 2018, The R Journal (https://journal.r-project.org/archive/2018-1/)", out.width="100%"}
-knitr::include_graphics("images/lesson_07_paper1.png")
-```
-
-One of the important innovations in `sf` is a complete implementation of the [**Simple Features**](https://cran.r-project.org/web/packages/sf/vignettes/sf1.html) standard. Since 2003, Simple Features been widely implemented in **spatial databases** (such as **PostGIS**), commercial GIS (e.g., **ESRI ArcGIS**) and forms the vector data basis for libraries such as **GDAL**. The Simple Features standard defines several types of geometries, of which seven are most commonly used in the world of GIS and spatial data analysis (Figure \@ref(fig:geometry-types)). When working with spatial databases, Simple Features are commonly specified as [**Well Known Text (WKT)**](https://en.wikipedia.org/wiki/Well-known_text). A subset of simple features forms the [**GeoJSON**](https://en.wikipedia.org/wiki/GeoJSON) standard.
-
 The `sf` package depends on several external software components (installed along with the R package^[in Windows.]), most importantly **GDAL**, **GEOS** and **PROJ** (Figure \@ref(fig:sf-dependencies)). These well-tested and popular open-source components are common to numerous open-source and commercial software for spatial analysis, such as **QGIS** and **PostGIS**.
 
 ```{r sf-dependencies, echo=FALSE, fig.cap="`sf` package dependencies (https://github.com/edzer/rstudio_conf)", out.width="100%"}
 knitr::include_graphics("images/sf_deps.png")
 ```
+
+## `sf` data structures {#the-sf-package}
 
 Package `sf` defines a *hierarchical* class system with three classes (Table \@ref(tab:structures-package-sf)):
 
@@ -409,7 +399,6 @@ par(opar)
 ```
 
 ```{r, include=FALSE}
-# Detach packages
 lapply(names(sessionInfo()$loadedOnly), require, character.only = TRUE)
 invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE, force=TRUE))
 ```
@@ -420,6 +409,9 @@ Function `st_read` can be used to read vector layers into `sf` data structures:
 
 ```{r}
 library(sf)
+```
+
+```{r}
 nafot = st_read("data/nafot.shp")
 ```
 
@@ -435,7 +427,7 @@ As mentioned above, a layer (geometry+attributes) is represented by an `sf` obje
 class(nafot)
 ```
 
-If we want just the *geometric* part, it can be extracted with `st_geometry`, resulting in an object of class `sfg` (geometry column):
+If we want just the *geometric* part, it can be extracted with `st_geometry`, resulting in an object of class `sfc` (geometry column):
 
 ```{r}
 st_geometry(nafot)
@@ -455,8 +447,14 @@ plot(nafot, key.width = lcm(4))
 
 Alternatively, we can plot the geometry only, without attributes, as follows (Figure \@ref(fig:simple-plot-geometry)):
 
-```{r simple-plot-geometry, fig.cap="The `nafot` layer", fig.width=4, fig.height=6, out.width="50%"}
+```{r, eval=FALSE}
 plot(st_geometry(nafot))
+```
+
+```{r simple-plot-geometry, echo=FALSE, fig.cap="The `nafot` layer", fig.width=4, fig.height=6, out.width="50%"}
+opar = par(mar = rep(0, 4))
+plot(st_geometry(nafot))
+par(opar)
 ```
 
 ## Coordinate Reference Systems (CRS)
@@ -484,7 +482,7 @@ st_crs(nafot)
 
 **Reprojection** is the transformation of geometry coordinates, from one CRS to another. It is an important part of spatial analysis workflow since as we often need to:
     
-* Transform several layers into the same projection, so that they can be displayed one on top of the other (e.g., Figure \@ref(fig:sfg-plot-add)) or so that they can be subject to a spatial operator (e.g., Figure \@ref(fig:intersection-geometrycollection))
+* Transform several layers into the same projection, so that they can be displayed one on top of the other (e.g., Figure \@ref(fig:nafot-rail)) or so that they can be subject to a spatial operator (e.g., Figure \@ref(fig:geometry-generating-pairs))
 * Switch between un-projected and projected CRS
 
 A vector layer can be reprojected with `st_transform`. The `st_transform` function has two important parameters: 
@@ -515,24 +513,13 @@ plot(st_geometry(nafot_wgs84), main = "WGS84", axes = TRUE)
 
 ## Reading layers into R
 
-In the following examples, we will use two vector layers:
-
-* `nafot`---"Nafa" administrative areas in Israel
-* `rail`---Railways in Israel
-
-First of all, we read the layers into R, using `st_read`:
-
-```{r}
-nafot = st_read("data/nafot.shp")
-```
+For the next series of examples, we read a second layer `RAIL_STRATEGIC.shp`. The layer contains Railways lines in Israel. Using `st_read`, we import the layer and create an `sf` object called `rail`:
 
 ```{r}
 rail = st_read("data/RAIL_STRATEGIC.shp")
 ```
 
-```{r}
-nafot
-```
+Here is a summary of the `rail` layer:
 
 ```{r}
 rail
@@ -540,7 +527,7 @@ rail
 
 ## Reprojection
 
-For any type of spatial analysis, we usually need all input layers to be in the same CTS. For that purpose, we will reproject the `rail` layer to the CRS of the `nafot` layer:
+For any type of spatial analysis, we usually need all input layers to be in the same CRS. For that purpose, we will reproject the `rail` layer to the CRS of the `nafot` layer:
 
 ```{r}
 rail = st_transform(rail, st_crs(nafot))
@@ -548,17 +535,13 @@ rail = st_transform(rail, st_crs(nafot))
 
 ## Basic plotting
 
-We can plot each layer on its own, as shown above, to examine its attributes:
+We can plot the `rail` layer on its own, as shown in Figure \@ref(fig:plot-rail), to examine its attributes:
 
-```{r, fig.cap="The `nafot` layer", fig.width=4, fig.height=6, out.width="50%", warning=FALSE}
-plot(nafot, key.width = lcm(4))
-```
-
-```{r, fig.cap="The `rail` layer", fig.width=6, fig.height=4, out.width="100%", warning=FALSE}
+```{r plot-rail, fig.cap="The `rail` layer", fig.width=6, fig.height=4, out.width="100%", warning=FALSE}
 plot(rail)
 ```
 
-We can also plot the two layer geometries together, to examine their arrangement (Figure \@ref(fig:nafot-rail)):
+We can also plot the `nafot` and `rail` geometries together, to examine their arrangement (Figure \@ref(fig:nafot-rail)). The second expression uses `add=TRUE` to add the geometries on top of the existing plot, instead of initializing a new one:
 
 ```{r, eval=FALSE}
 plot(st_geometry(nafot), border = "grey")
@@ -583,7 +566,7 @@ rail = rail[rail$ISACTIVE == "פעיל", ]
 rail
 ```
 
-We can also subset the columns (attributes) we need. For example, in the following expressions we create an ID variable `segment_id`, and keep only that variable:
+We can also subset the columns (attributes) we need. For example, in the following expressions we create an ID attribute called `segment_id`, and remove all other attributes:
 
 ```{r}
 rail$segment_id = 1:nrow(rail)
@@ -809,7 +792,7 @@ title("union(x, y)")
 par(opar)
 ```
 
-# Example 1: Rail density
+# Example #1: Rail density
 
 ## Splitting lines by polygons
 
@@ -902,17 +885,17 @@ nafot = nafot[order(nafot$density, decreasing = TRUE), ]
 nafot
 ```
 
-Plotting the layer shows the new `density` attribute:
+Plotting the layer shows the new `density` attribute (Figures \@ref(fig:density-1) and \@ref(fig:density-2)):
 
-```{r, fig.cap="railway density per state", out.width="50%", warning=FALSE, fig.width=4, fig.height=6}
+```{r density-1, fig.cap="railway density per state", out.width="50%", warning=FALSE, fig.width=4, fig.height=6}
 plot(nafot[, "density"])
 ```
 
-```{r, fig.cap="Nafot layer with calculated attributes", warning=FALSE}
+```{r density-2, fig.cap="Nafot layer with calculated attributes", warning=FALSE}
 plot(nafot)
 ```
 
-# Example 2: Population patterns
+# Example #2: Population patterns
 
 ## Reading statistical areas
 
@@ -985,9 +968,9 @@ plot(st_geometry(nafot), border = "grey", add = TRUE)
 Now, in theory, we are ready to calculate the weighted sum of population per "Nafa", using function `st_interpolate_aw`. The 
 function requires three parameters:
 
-* ...
-* ...
-* ...
+* `x`---Input layer (with values to transfer)
+* `to`---Target geometries (where to transfer values)
+* `extensive`---Spatially extensive, like population (`TRUE`), or spatially intensive, like population density (`FALSE`)
 
 ```{r, eval=FALSE}
 st_interpolate_aw(stat, nafot, extensive = TRUE)
@@ -1059,22 +1042,55 @@ rect.hclust(hc, k = k)
 
 ```{r}
 library(reshape2)
+
+# Reshape
 dat2 = dat
 dat2$group = groups
 dat2$name = rownames(dat2)
 dat2 = melt(dat2, id.vars = c("group", "name"))
 dat2$variable = gsub("age_", "", dat2$variable)
+
+# Set age groups order
+x = strsplit(dat2$variable, "_")
+x = sapply(x, "[", 1)
+x = as.numeric(x)
+x = dat2$variable[order(x)]
+x = unique(x)
+dat2$variable = factor(dat2$variable, levels = x)
+
+# Set cluster labels
+x = split(dat2$name, dat2$group)
+x = sapply(x, "[", 1)
+dat2$group = factor(dat2$group, levels = 1:3, labels = x)
+
 head(dat2)
 ```
 
-```{r, fig.width=7, fig.height=4, out.width="100%"}
+The following Figures \@ref(fig:ggplot-1) and \@ref(fig:ggplot-2) show two ways to visualize the data. 
+
+```{r ggplot-1, fig.cap="Nafa clusters (lines)", fig.width=8, fig.height=4, out.width="100%"}
 library(ggplot2)
 ggplot(dat2, aes(x = variable, y = value, group = name)) +
     geom_line() +
+    scale_x_discrete("Age group") +
+    scale_y_continuous("Proportion") +
     facet_wrap(~ group) +
     theme_bw() +
     theme(
-      axis.title.x = element_text(angle = 90, vjust = 0.5)
+      axis.text.x = element_text(angle = 90, vjust = 0.5)
+    )
+```
+
+```{r ggplot-2, fig.cap="Nafa clusters (columns)", fig.width=8, fig.height=4, out.width="100%"}
+ggplot(dat2, aes(x = name, y = value, fill = variable, group = name)) +
+    geom_col(colour = "black") +
+    scale_x_discrete("Nafa") +
+    scale_y_continuous("Proportion") +
+    scale_fill_manual("Age group", values = hcl.colors(length(levels(dat2$variable)), "Dark2")) +
+    facet_grid(. ~ group, scales = "free", space = "free") +
+    theme_bw() +
+    theme(
+      axis.text.x = element_text(angle = 90, vjust = 0.5)
     )
 ```
 

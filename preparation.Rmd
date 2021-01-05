@@ -27,6 +27,10 @@ knitr::opts_chunk$set(cache = FALSE, echo = TRUE, collapse = TRUE, fig.align = "
 
 This is an exercise and checklist to make sure that your system is correctly set up for the [Using R for Spatial Data Analysis](main.html) lecture. 
 
+A script with the R code of this document is available here:
+
+https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/preparation.R
+
 # Setting up R environemnt
 
 To setup the R environment:
@@ -67,6 +71,14 @@ Extract the contents of the ZIP file and set the working directory to that locat
 setwd("C:\\Data\\CSB")
 ```
 
+Alternatively, run the following expressions to automatically download and unzip the sample data into the working directory:
+
+```{r}
+url = "https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/data.zip"
+download.file(url, "data.zip")
+unzip("data.zip")
+```
+
 # Reading the layers
 
 If all worked well, the following expressions will import the three layers into R. 
@@ -75,8 +87,8 @@ If all worked well, the following expressions will import the three layers into 
 
 ```{r}
 nafot = st_read("data/nafot.shp")
-rail = st_read("data/RAIL_STRATEGIC.shp")
-stat = st_read("data/statisticalareas_demography2018.gdb")
+rail = st_read("data/RAIL_STRATEGIC.shp", options = "ENCODING=UTF-8")
+stat = st_read("data/statisticalareas_demography2018.gdb", options = "ENCODING=UTF-8")
 ```
 
 Note that the file names are prefixed with `data/` because, in my case the layers are in a sub-directory named `data` inside the working directory. If the files are in the working directory, use just the file name instead:
@@ -109,13 +121,22 @@ Finally, to make sure that we can work with Hebrew in R, try to subset the *acti
 
 ```{r}
 rail = rail[rail$ISACTIVE == "פעיל", ]
-rail
 ```
 
 And plot:
 
 ```{r}
 plot(rail)
+```
+
+In case you are working with an [R script file](https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/preparation.R), to properly display the Hebrew text the file needs to be opened with the UTF-8 encoding. To do that:
+
+* Open the file in RStudio, by double-click or through **File→Open File...**
+* Click on **File→Reopen with Encoding**
+* Select **UTF-8** from the list, and click **OK** (Figure \@ref(fig:encoding))
+
+```{r encoding, echo=FALSE, fig.cap="Reopening an R script with the UTF-8 encoding in RStudio", out.width="100%"}
+knitr::include_graphics("images/encoding.png")
 ```
 
 # Prerequisites
