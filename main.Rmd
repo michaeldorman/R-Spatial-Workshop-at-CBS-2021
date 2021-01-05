@@ -7,10 +7,6 @@ author: |
     | Michael Dorman
     | **Geography and Environmental Development**
     | dorman@post.bgu.ac.il
-# output: 
-#   distill::distill_article:
-#     toc: true
-#     theme: theme.css
 output: 
   bookdown::html_document2:
     toc: true
@@ -25,6 +21,7 @@ pagetitle: Using R for Spatial Data Analysis
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(cache = FALSE, echo = TRUE, collapse = TRUE, fig.align = "center")
+# knitr::purl("main.Rmd", documentation = 1)
 ```
 
 # Setup: sample data {-}
@@ -44,6 +41,12 @@ https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/data.zi
 A script with the R code of this document is available here:
 
 https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/main.R
+
+The Rmarkdown file is available here:
+
+https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/preparation.Rmd
+
+All of the materials are also available on [GitHub](https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/).
 
 For more details on setting up the environment and sample data, see the [preparation](preparation.html) document.
 
@@ -270,15 +273,7 @@ Package `sf` combined with `RPostgreSQL` can be used to read from, and write to,
 
 ```{r, echo=FALSE}
 # library(sf)
-# library(RPostgreSQL)
-# con = dbConnect(
-#   PostgreSQL(),
-#   dbname = "gisdb",
-#   host = "159.89.13.241",
-#   port = 5432,
-#   user = "geobgu",
-#   password = "geobgu1"
-# )
+# source("/home/michael/Sync/postgis_159.R")
 # q = "SELECT name_lat, geometry FROM plants LIMIT 3;"
 # st_read(con, query = q)
 ```
@@ -343,7 +338,7 @@ The `sf` package depends on several external software components (installed alon
 knitr::include_graphics("images/sf_deps.png")
 ```
 
-## `sf` data structures {#the-sf-package}
+## `sf` data structures {#sf-data-structures}
 
 Package `sf` defines a *hierarchical* class system with three classes (Table \@ref(tab:structures-package-sf)):
 

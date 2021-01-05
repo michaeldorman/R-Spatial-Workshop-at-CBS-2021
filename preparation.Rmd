@@ -19,8 +19,9 @@ output:
 pagetitle: Using R for Spatial Data Analysis
 ---
 
-```{r setup, include=FALSE}
+```{r, include=FALSE}
 knitr::opts_chunk$set(cache = FALSE, echo = TRUE, collapse = TRUE, fig.align = "center")
+# knitr::purl("preparation.Rmd", documentation = 1)
 ```
 
 # Introduction
@@ -30,6 +31,12 @@ This is an exercise and checklist to make sure that your system is correctly set
 A script with the R code of this document is available here:
 
 https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/preparation.R
+
+The Rmarkdown file is available here:
+
+https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/preparation.Rmd
+
+All of the materials are also available on [GitHub](https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/).
 
 # Setting up R environemnt
 
@@ -43,9 +50,9 @@ To setup the R environment:
 install.packages("sf")
 ```
 
-You should be able to load the `sf` package and see a message as follows:
+You should now be able to load the `sf` package as follows:
 
-```{r}
+```{r, message=TRUE, warning=TRUE}
 library(sf)
 ```
 
@@ -71,7 +78,7 @@ Extract the contents of the ZIP file and set the working directory to that locat
 setwd("C:\\Data\\CSB")
 ```
 
-Alternatively, run the following expressions to automatically download and unzip the sample data into the working directory:
+Alternatively, run the following expressions to automatically download and unzip the sample data into your current working directory:
 
 ```{r}
 url = "https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/data.zip"
@@ -83,7 +90,7 @@ unzip("data.zip")
 
 If all worked well, the following expressions will import the three layers into R. 
 
-**Note that the file names are prefixed with `data/` because, in my case the layers are in a sub-directory named `data` inside the working directory.**
+Note that the file names are prefixed with `data/` when the layers are in a sub-directory named `data`, inside the working directory.
 
 ```{r}
 nafot = st_read("data/nafot.shp")
@@ -91,7 +98,7 @@ rail = st_read("data/RAIL_STRATEGIC.shp", options = "ENCODING=UTF-8")
 stat = st_read("data/statisticalareas_demography2018.gdb", options = "ENCODING=UTF-8")
 ```
 
-Note that the file names are prefixed with `data/` because, in my case the layers are in a sub-directory named `data` inside the working directory. If the files are in the working directory, use just the file name instead:
+If the files are in the working directory, use just the file name, as follows:
 
 ```{r, eval=FALSE}
 nafot = st_read("nafot.shp")
@@ -101,17 +108,17 @@ stat = st_read("statisticalareas_demography2018.gdb")
 
 # Plotting the layers
 
-Let's try to plot the layers:
+Let's try to plot the layers (Figures \@ref(fig:nafot), \@ref(fig:rail), and \@ref(fig:stat)):
 
-```{r}
+```{r nafot, fig.cap='The `nafot` layer'}
 plot(nafot, key.width = lcm(4))
 ```
 
-```{r}
+```{r rail, fig.cap='The `rail` layer', fig.width=6, fig.height=4, out.width="100%"}
 plot(rail)
 ```
 
-```{r}
+```{r stat, fig.cap='The `stat` layer'}
 plot(stat)
 ```
 
@@ -123,13 +130,13 @@ Finally, to make sure that we can work with Hebrew in R, try to subset the *acti
 rail = rail[rail$ISACTIVE == "פעיל", ]
 ```
 
-And plot:
+and then plot the subset (Figure \@ref(fig:rail2)):
 
-```{r}
+```{r rail2, fig.cap='The `rail` layer, subset of active railway lines', fig.width=6, fig.height=4, out.width="100%"}
 plot(rail)
 ```
 
-In case you are working with an [R script file](https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/preparation.R), to properly display the Hebrew text the file needs to be opened with the UTF-8 encoding. To do that:
+In case you are working with the [R script file](https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/preparation.R) or the [Rmarkdown file](https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/preparation.Rmd), to properly display the Hebrew text the file needs to be opened with the UTF-8 encoding. To do that:
 
 * Open the file in RStudio, by double-click or through **File→Open File...**
 * Click on **File→Reopen with Encoding**
@@ -141,7 +148,7 @@ knitr::include_graphics("images/encoding.png")
 
 # Prerequisites
 
-To follow the code examples in the [lecture](main.html), you should be familiar with the following topics aspects of the R language: 
+To follow the code examples in the [lecture](main.html), you should be familiar with the following topics and aspects of the R language:
 
 * Installing R and RStudio
 * Installing and loading packages
