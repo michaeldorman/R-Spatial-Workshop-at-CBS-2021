@@ -1,13 +1,13 @@
-## ----setup, include=FALSE------------------------------------------------------------
+## ----setup, include=FALSE----------------------------------------------
 knitr::opts_chunk$set(cache = FALSE, echo = TRUE, collapse = TRUE, fig.align = "center")
-knitr::purl("main.Rmd", documentation = 1)
+# knitr::purl("main.Rmd", documentation = 1)
 
 
-## ----gui, echo=FALSE, fig.cap="**QGIS**, an example of Graphical User Interface (GUI) software", out.width="80%"----
+## ----gui, echo=FALSE, fig.cap="**QGIS**, an example of Graphical User Interface (GUI) software", out.width="100%"----
 knitr::include_graphics("images/QGIS.png")
 
 
-## ----cli, echo=FALSE, fig.cap="**R**, an example of Command Line Interface (CLI) software", out.width="80%"----
+## ----cli, echo=FALSE, fig.cap="**R**, an example of Command Line Interface (CLI) software", out.width="100%"----
 knitr::include_graphics("images/R.png")
 
 
@@ -71,7 +71,7 @@ polygon(meuse.riv, asp = 1, col = col)
 plot(meuse, pch = 1, cex = log(meuse$zinc) / 5, add = TRUE)
 
 
-## ----spdep, echo=FALSE, results="hide", message=FALSE, warning=FALSE, fig.cap="Neighbors list based on regions with contiguous boundaries", fig.width=7, fig.height=3.5, out.width="100%"----
+## ----spdep, echo=FALSE, results="hide", message=FALSE, warning=FALSE, fig.cap="Neighbors list based on regions with contiguous boundaries", fig.width=9, fig.height=4, out.width="100%"----
 # From '?poly2nb'
 library(spdep)
 nc = st_read(system.file("shape/nc.shp", package = "sf"))
@@ -94,42 +94,34 @@ plot(cells, add = TRUE, col = "red", pch = 3)
 par(opar)
 
 
-## ---- eval=FALSE---------------------------------------------------------------------
-## # library(sf)
-## # library(RPostgreSQL)
+## ---- eval=FALSE-------------------------------------------------------
+## library(sf)
+## library(RPostgreSQL)
 ## 
-## # con = dbConnect(
-## #   PostgreSQL(),
-## #   dbname = "gisdb",
-## #   host = "159.89.13.241",
-## #   port = 5432,
-## #   user = "geobgu",
-## #   password = "*******"
-## # )
+## con = dbConnect(
+##   PostgreSQL(),
+##   dbname = "gisdb",
+##   host = "159.89.13.241",
+##   port = 5432,
+##   user = "geobgu",
+##   password = "*******"
+## )
 
 
-## ---- eval=FALSE---------------------------------------------------------------------
-## # q = "SELECT name_lat, geometry FROM plants LIMIT 3;"
-## # st_read(con, query = q)
+## ---- eval=FALSE-------------------------------------------------------
+## q = "SELECT name_lat, geometry FROM plants LIMIT 3;"
+## st_read(con, query = q)
 
 
-## ---- echo=FALSE---------------------------------------------------------------------
-# library(sf)
-# library(RPostgreSQL)
-# con = dbConnect(
-#   PostgreSQL(),
-#   dbname = "gisdb",
-#   host = "159.89.13.241",
-#   port = 5432,
-#   user = "geobgu",
-#   password = "geobgu1"
-# )
-# q = "SELECT name_lat, geometry FROM plants LIMIT 3;"
-# st_read(con, query = q)
+## ---- echo=FALSE-------------------------------------------------------
+library(sf)
+source("/home/michael/Sync/postgis_159.R")
+q = "SELECT name_lat, geometry FROM plants LIMIT 3;"
+st_read(con, query = q)
 
 
-## ---- include=FALSE------------------------------------------------------------------
-# dbDisconnect(con)
+## ---- include=FALSE----------------------------------------------------
+dbDisconnect(con)
 
 
 ## ----sf-r-journal, echo=FALSE, fig.cap="Pebesma, 2018, The R Journal (https://journal.r-project.org/archive/2018-1/)", out.width="100%"----
@@ -203,32 +195,32 @@ ggplot() +
 par(opar)
 
 
-## ---- include=FALSE------------------------------------------------------------------
+## ---- include=FALSE----------------------------------------------------
 lapply(names(sessionInfo()$loadedOnly), require, character.only = TRUE)
 invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE, force=TRUE))
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 library(sf)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 nafot = st_read("data/nafot.shp")
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 nafot
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 class(nafot)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 st_geometry(nafot)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 st_drop_geometry(nafot)
 
 
@@ -236,7 +228,7 @@ st_drop_geometry(nafot)
 plot(nafot, key.width = lcm(4))
 
 
-## ---- eval=FALSE---------------------------------------------------------------------
+## ---- eval=FALSE-------------------------------------------------------
 ## plot(st_geometry(nafot))
 
 
@@ -250,29 +242,32 @@ par(opar)
 knitr::include_graphics("images/geographic-vs-projected-2.png")
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 st_crs(nafot)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 nafot_wgs84 = st_transform(nafot, 4326)
+
+
+## ----------------------------------------------------------------------
 nafot_wgs84
 
 
-## ---- fig.cap="Nafot in UTM and WGS84 coordinate reference systems", fig.height=7, fig.width=4.5, out.width="40%", fig.show="hold"----
+## ----nafot-wgs84, fig.cap="Nafot in UTM and WGS84 coordinate reference systems", fig.height=7, fig.width=4.5, out.width="40%", fig.show="hold"----
 plot(st_geometry(nafot), main = "UTM", axes = TRUE)
 plot(st_geometry(nafot_wgs84), main = "WGS84", axes = TRUE)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 rail = st_read("data/RAIL_STRATEGIC.shp")
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 rail
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 rail = st_transform(rail, st_crs(nafot))
 
 
@@ -280,7 +275,7 @@ rail = st_transform(rail, st_crs(nafot))
 plot(rail)
 
 
-## ---- eval=FALSE---------------------------------------------------------------------
+## ---- eval=FALSE-------------------------------------------------------
 ## plot(st_geometry(nafot), border = "grey")
 ## plot(st_geometry(rail), add = TRUE)
 
@@ -292,23 +287,27 @@ plot(st_geometry(rail), add = TRUE)
 par(opar)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 rail = rail[rail$ISACTIVE == "פעיל", ]
 rail
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 rail$segment_id = 1:nrow(rail)
 rail = rail["segment_id"]
 rail
 
 
-## ------------------------------------------------------------------------------------
+## ----rail-active, fig.cap="Subset of active railway lines", fig.width=4, fig.height=6, out.width="50%", warning=FALSE----
+plot(rail)
+
+
+## ----------------------------------------------------------------------
 nafot1 = nafot[rail, ]
 nafot1
 
 
-## ---- eval=FALSE---------------------------------------------------------------------
+## ---- eval=FALSE-------------------------------------------------------
 ## plot(st_geometry(nafot), border = "grey50")
 ## plot(st_geometry(nafot1), border = "grey50", col = "grey90", add = TRUE)
 ## plot(st_geometry(rail), add = TRUE)
@@ -322,34 +321,34 @@ plot(st_geometry(rail), add = TRUE)
 par(opar)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 nafot$area = st_area(nafot)
 nafot$area[1:3]
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 class(nafot$area)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 library(units)
 nafot$area = set_units(nafot$area, "km^2")
 nafot$area[1:3]
 
 
-## ---- fig.cap="Calculated `area` attribute", fig.width=4, fig.height=6, out.width="50%"----
+## ----nafot-area, fig.cap="Calculated `area` attribute", fig.width=4, fig.height=6, out.width="50%"----
 plot(nafot[, "area"])
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 int = st_intersects(nafot1, nafot1, sparse = FALSE)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 int
 
 
-## ---- fig.cap="Intersection relations between `nafot` features", out.width="80%"-----
+## ----st-intersects-matrix, fig.cap="Intersection relations between `nafot` features", out.width="80%"----
 int1 = apply(int, 2, rev)
 int1 = t(int1)
 image(int1, col = c("lightgrey", "red"), asp = 1, axes = FALSE)
@@ -390,11 +389,11 @@ title("st_voronoi")
 par(opar)
 
 
-## ---- warning=FALSE------------------------------------------------------------------
+## ---- warning=FALSE----------------------------------------------------
 nafot_ctr = st_centroid(nafot)
 
 
-## ---- eval=FALSE---------------------------------------------------------------------
+## ---- eval=FALSE-------------------------------------------------------
 ## plot(st_geometry(nafot), border = "grey")
 ## plot(st_geometry(nafot_ctr), col = "red", pch = 3, add = TRUE)
 
@@ -442,7 +441,7 @@ title("union(x, y)")
 par(opar)
 
 
-## ---- message=FALSE, warning=FALSE---------------------------------------------------
+## ---- message=FALSE, warning=FALSE-------------------------------------
 rail_int = st_intersection(rail, nafot)
 rail_int
 
@@ -452,39 +451,39 @@ plot(rail_int[, "name_eng"], lwd = 3, key.width = lcm(4), reset = FALSE)
 plot(st_geometry(nafot), border = "lightgrey", add = TRUE)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 class(rail_int$geometry)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 rail_int = st_cast(rail_int, "MULTILINESTRING")
 rail_int
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 rail_int$length = st_length(rail_int)
 rail_int$length = set_units(rail_int$length, km)
 rail_int
 
 
-## ---- message=FALSE------------------------------------------------------------------
+## ---- message=FALSE----------------------------------------------------
 rail_int = st_drop_geometry(rail_int) 
 rail_int = aggregate(rail_int["length"], rail_int["name_eng"], sum)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 head(rail_int)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 nafot = merge(nafot, rail_int, by = "name_eng", all.x = TRUE)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 nafot
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 nafot$length[is.na(nafot$length)] = 0
 
 
@@ -492,11 +491,11 @@ nafot$length[is.na(nafot$length)] = 0
 plot(nafot[, "length"])
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 nafot$density = nafot$length / nafot$area
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 nafot = nafot[order(nafot$density, decreasing = TRUE), ]
 nafot
 
@@ -505,29 +504,29 @@ nafot
 plot(nafot[, "density"])
 
 
-## ----density-2, fig.cap="Nafot layer with calculated attributes", warning=FALSE------
+## ----density-2, fig.cap="Nafot layer with calculated attributes", warning=FALSE----
 plot(nafot)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 stat = st_read("data/statisticalareas_demography2018.gdb")
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 vars = colnames(stat)
 vars
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 vars = vars[grepl("age_", vars)]
 vars
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 stat = stat[vars]
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 stat = st_transform(stat, st_crs(nafot))
 
 
@@ -540,7 +539,7 @@ plot(stat["age_10_14"], pal = hcl.colors(12, "Reds", rev = TRUE), border = "blac
 plot(st_geometry(nafot), border = "grey", add = TRUE)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 stat[is.na(stat)] = 0
 
 
@@ -549,61 +548,73 @@ plot(stat["age_10_14"], pal = hcl.colors(12, "Reds", rev = TRUE), border = "blac
 plot(st_geometry(nafot), border = "grey", add = TRUE)
 
 
-## ---- eval=FALSE---------------------------------------------------------------------
+## ---- eval=FALSE-------------------------------------------------------
 ## st_interpolate_aw(stat, nafot, extensive = TRUE)
 
 
-## ---- error=TRUE---------------------------------------------------------------------
+## ---- error=TRUE-------------------------------------------------------
 x = st_interpolate_aw(stat, nafot, extensive = TRUE)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 as.data.frame(table(st_geometry_type(stat)))
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 stat = st_cast(stat, "MULTIPOLYGON")
 as.data.frame(table(st_geometry_type(stat)))
 
 
-## ---- error=TRUE---------------------------------------------------------------------
+## ---- error=TRUE-------------------------------------------------------
 x = st_interpolate_aw(stat, nafot, extensive = TRUE)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 stat = st_make_valid(stat)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 x = st_interpolate_aw(stat, nafot, extensive = TRUE)
 x$Group.1 = NULL
 
 
-## ---- fig.width=9, fig.height=5, out.width="100%"------------------------------------
+## ---- fig.width=9, fig.height=5, out.width="100%"----------------------
 plot(x, max.plot = 16)
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 dat = st_drop_geometry(x)
 rownames(dat) = nafot$name_eng
 dat[, 1:6]
 
 
-## ------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------
 dat = sweep(dat, 1, rowSums(dat), "/")
 dat[, 1:6]
 
 
-## ---- fig.width=7, fig.height=4, out.width="100%"------------------------------------
+## ----------------------------------------------------------------------
 d = dist(dat)
 hc = hclust(d, "average")
+
+
+## ----------------------------------------------------------------------
 k = 3
 groups = cutree(hc, k = k)
+groups
+
+
+## ----hc-dendrogram, fig.cap="Hierarchical dendrogram of age structure per Nafa", fig.width=7, fig.height=4, out.width="100%"----
 plot(hc)
 rect.hclust(hc, k = k)
 
 
-## ------------------------------------------------------------------------------------
+## ----hc-map, fig.cap="Age structure clusters on a map"-----------------
+nafot$group = factor(groups)
+plot(nafot["group"])
+
+
+## ----------------------------------------------------------------------
 library(reshape2)
 
 # Reshape
@@ -629,26 +640,13 @@ dat2$group = factor(dat2$group, levels = 1:3, labels = x)
 head(dat2)
 
 
-## ----ggplot-1, fig.cap="Nafa clusters (lines)", fig.width=8, fig.height=4, out.width="100%"----
+## ----ggplot-1, fig.cap="Distribution of age structures in each cluster of `nafot`", fig.width=8, fig.height=4, out.width="100%"----
 library(ggplot2)
 ggplot(dat2, aes(x = variable, y = value, group = name)) +
     geom_line() +
     scale_x_discrete("Age group") +
     scale_y_continuous("Proportion") +
     facet_wrap(~ group) +
-    theme_bw() +
-    theme(
-      axis.text.x = element_text(angle = 90, vjust = 0.5)
-    )
-
-
-## ----ggplot-2, fig.cap="Nafa clusters (columns)", fig.width=8, fig.height=4, out.width="100%"----
-ggplot(dat2, aes(x = name, y = value, fill = variable, group = name)) +
-    geom_col(colour = "black") +
-    scale_x_discrete("Nafa") +
-    scale_y_continuous("Proportion") +
-    scale_fill_manual("Age group", values = hcl.colors(length(levels(dat2$variable)), "Dark2")) +
-    facet_grid(. ~ group, scales = "free", space = "free") +
     theme_bw() +
     theme(
       axis.text.x = element_text(angle = 90, vjust = 0.5)

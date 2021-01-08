@@ -94,7 +94,13 @@ Note that the file names are prefixed with `data/` when the layers are in a sub-
 
 ```{r}
 nafot = st_read("data/nafot.shp")
+```
+
+```{r}
 rail = st_read("data/RAIL_STRATEGIC.shp", options = "ENCODING=UTF-8")
+```
+
+```{r}
 stat = st_read("data/statisticalareas_demography2018.gdb", options = "ENCODING=UTF-8")
 ```
 
@@ -132,7 +138,7 @@ rail = rail[rail$ISACTIVE == "פעיל", ]
 
 and then plot the subset (Figure \@ref(fig:rail2)):
 
-```{r rail2, fig.cap='The `rail` layer, subset of active railway lines', fig.width=6, fig.height=4, out.width="100%"}
+```{r rail2, fig.cap='The `rail` layer, subset of active railway lines', fig.width=7, fig.height=3, out.width="100%"}
 plot(rail)
 ```
 

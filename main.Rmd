@@ -26,6 +26,8 @@ knitr::opts_chunk$set(cache = FALSE, echo = TRUE, collapse = TRUE, fig.align = "
 
 # Setup: sample data {-}
 
+For more on setting up the environment and sample data, see the [preparation](preparation.html) document.
+
 | Data | File(s) | Format | Source | 
 |----|----|----|------|
 | "Nafot"           | `nafot.shp` (+7)                      | Shapefile | https://www.gov.il/he/Departments/Guides/info-gis |
@@ -48,32 +50,32 @@ https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/prepara
 
 All of the materials are also available on [GitHub](https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/).
 
-For more details on setting up the environment and sample data, see the [preparation](preparation.html) document.
-
 # R for Spatial Data Analysis
 
 ## Software for analysis of spatial data
 
-Software in general, and software for sptial analysis in particular, is characterized by two types of interfaces:
+Software in general, and software for spatial analysis in particular, is characterized by two types of interfaces:
 
 * Graphical User Interface (GUI) (Figure \@ref(fig:gui))
 * Command Line Interface (CLI) (Figure \@ref(fig:cli))
 
-In a GUI, our interaction with the computer is restricted to the predefined set of input elements, such as buttons, menus, and dialog boxes. In a CLI, we interact with the computer by writing code, which means that our instructions are practically unconstraned. With a CLI, we can give the computer specific instructions to do anything we want. 
+In a GUI, our interaction with the computer is restricted to the predefined set of input elements, such as buttons, menus, and dialog boxes. In a CLI, we interact with the computer by writing code, which means that our instructions are practically unconstraned. In other words, with a CLI, we can give the computer specific instructions to do anything we want. 
 
 R, which we talk about today, is an example of CLI software for working with (among other things) spatial data.
 
-```{r gui, echo=FALSE, fig.cap="**QGIS**, an example of Graphical User Interface (GUI) software", out.width="80%"}
+```{r gui, echo=FALSE, fig.cap="**QGIS**, an example of Graphical User Interface (GUI) software", out.width="100%"}
 knitr::include_graphics("images/QGIS.png")
 ```
 
-```{r cli, echo=FALSE, fig.cap="**R**, an example of Command Line Interface (CLI) software", out.width="80%"}
+```{r cli, echo=FALSE, fig.cap="**R**, an example of Command Line Interface (CLI) software", out.width="100%"}
 knitr::include_graphics("images/R.png")
 ```
 
 ## What is R?
 
-**R** is a programming language and environment, originally developed for statistical computing and graphics. Notable advantages of R are that it is a full-featured programming language, yet customized for working with data, relatively simple and has a huge collection of ~16,000 packages in the [official repository](https://cran.r-project.org/web/packages/) from various areas of interest.Over time, there was an increasing number of contributed packages for handling and analyzing spatial data in R. Today, spatial analysis is a major functionality in R. As of October 2020, there are [~185 packages](https://cran.r-project.org/web/views/Spatial.html) specifically addressing spatial analysis in R, and many more are indirectly related to spatial data.
+[**R**](https://www.r-project.org/) is a programming language and environment, originally developed for statistical computing and graphics. Notable advantages of R are that it is a full-featured programming language, yet customized for working with data, relatively simple and has a huge collection of ~16,000 packages in the [official repository](https://cran.r-project.org/web/packages/) from various areas of interest. 
+
+Over time, there was an increasing number of contributed packages for handling and analyzing spatial data in R. Today, spatial analysis is a major functionality in R. As of October 2020, there are [~185 packages](https://cran.r-project.org/web/views/Spatial.html) specifically addressing spatial analysis in R, and many more are indirectly related to spatial data.
 
 ```{r, echo=FALSE, fig.cap="Books on Spatial Data Analysis with R", out.width="100%"}
 knitr::include_graphics("images/books.svg")
@@ -101,7 +103,7 @@ Table: (\#tab:r-history) Significant events in the history of R-spatial
 
 ## R as a GIS?
 
-The question that arises here is: can R be used as a Geographic Information System (GIS), or as a comprehensive toolbox for doing spatial analysis? The answer is definitely *yes*. Moreover, R has some important advantages over traditional approaches to GIS, i.e., software with graphical user interfaces such as ArcGIS or QGIS. 
+A question that arises, at this point, is: can R be used as a Geographic Information System (GIS), or as a comprehensive toolbox for doing spatial analysis? The answer is definitely *yes*. Moreover, R has some important advantages over traditional approaches to GIS, i.e., software with graphical user interfaces such as ArcGIS or QGIS. 
 
 *General* advantages of Command Line Interface (CLI) software include:
 
@@ -217,7 +219,7 @@ Modelling with spatial weights:
 * Tests for spatial autocorrelation for areal data (e.g. Moran's I)
 * Spatial regression models (e.g. SAR, CAR)
 
-```{r spdep, echo=FALSE, results="hide", message=FALSE, warning=FALSE, fig.cap="Neighbors list based on regions with contiguous boundaries", fig.width=7, fig.height=3.5, out.width="100%"}
+```{r spdep, echo=FALSE, results="hide", message=FALSE, warning=FALSE, fig.cap="Neighbors list based on regions with contiguous boundaries", fig.width=9, fig.height=4, out.width="100%"}
 # From '?poly2nb'
 library(spdep)
 nc = st_read(system.file("shape/nc.shp", package = "sf"))
@@ -253,33 +255,33 @@ par(opar)
 Package `sf` combined with `RPostgreSQL` can be used to read from, and write to, a **PostGIS** spatial database:
 
 ```{r, eval=FALSE}
-# library(sf)
-# library(RPostgreSQL)
+library(sf)
+library(RPostgreSQL)
 
-# con = dbConnect(
-#   PostgreSQL(),
-#   dbname = "gisdb",
-#   host = "159.89.13.241",
-#   port = 5432,
-#   user = "geobgu",
-#   password = "*******"
-# )
+con = dbConnect(
+  PostgreSQL(),
+  dbname = "gisdb",
+  host = "159.89.13.241",
+  port = 5432,
+  user = "geobgu",
+  password = "*******"
+)
 ```
 
 ```{r, eval=FALSE}
-# q = "SELECT name_lat, geometry FROM plants LIMIT 3;"
-# st_read(con, query = q)
+q = "SELECT name_lat, geometry FROM plants LIMIT 3;"
+st_read(con, query = q)
 ```
 
 ```{r, echo=FALSE}
-# library(sf)
-# source("/home/michael/Sync/postgis_159.R")
-# q = "SELECT name_lat, geometry FROM plants LIMIT 3;"
-# st_read(con, query = q)
+library(sf)
+source("/home/michael/Sync/postgis_159.R")
+q = "SELECT name_lat, geometry FROM plants LIMIT 3;"
+st_read(con, query = q)
 ```
 
 ```{r, include=FALSE}
-# dbDisconnect(con)
+dbDisconnect(con)
 ```
 
 ## Other examples
@@ -288,15 +290,14 @@ Package `sf` combined with `RPostgreSQL` can be used to read from, and write to,
 * Simplification `rmapshaper`
 * Access to OSM data: `osmdata`, `osmextract`
 * Static mapping: `ggplot2`, `tmap`, `rasterVis`
-* Web mapping: `leaflet`, `mapview`, `deckgl`
-* Mapping APIs: `mapsapi`
+* Web mapping and web APIs: `leaflet`, `mapview`, `deckgl`, `mapsapi`
 * Spherical geometry: `geosphere`, `s2`, `lwgeom`
 
 # Spatial data structures
 
 ## The `sf` package {#the-sf-package}
 
-The `sf` package (Figure \@ref(fig:sf-r-journal)), released in 2016, is a newer package for working with vector layers in R, which we are going to use in this book. In recent years, `sf` has become the standard package for working with vector data in R, practically replacing `sp`, `rgdal`, and `rgeos`. 
+The `sf` package (Figure \@ref(fig:sf-r-journal)), released in 2016, is a newer package for working with vector layers in R, which we are going to use in this tutorial. In recent years, `sf` has become the standard package for working with vector data in R, practically replacing `sp`, `rgdal`, and `rgeos`. 
 
 ```{r sf-r-journal, echo=FALSE, fig.cap="Pebesma, 2018, The R Journal (https://journal.r-project.org/archive/2018-1/)", out.width="100%"}
 knitr::include_graphics("images/lesson_07_paper1.png")
@@ -400,11 +401,13 @@ invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, cha
 
 ## Reading vector data
 
-Function `st_read` can be used to read vector layers into `sf` data structures:
+Function `st_read` can be used to read vector layers into `sf` data structures. First, we load the `sf` package:
 
 ```{r}
 library(sf)
 ```
+
+Then, we can use `st_read` to import a vector into the R environment. In this case, we are reading the `nafot.shp` Shapefile:
 
 ```{r}
 nafot = st_read("data/nafot.shp")
@@ -416,7 +419,7 @@ Printing the object gives a summary of its properties, and the values of the (fi
 nafot
 ```
 
-As mentioned above, a layer (geometry+attributes) is represented by an `sf` object:
+As mentioned above, a layer (geometry+attributes) is represented by an `sf` object. The second printed value, `data.frame`, implies that `sf` is, in fact, an extension of the `data.frame` class, inheriting many of its methods. Indeed, we will see that many functions in R work exactly the same way on `sf` and `data.frame` objects.
 
 ```{r}
 class(nafot)
@@ -428,7 +431,7 @@ If we want just the *geometric* part, it can be extracted with `st_geometry`, re
 st_geometry(nafot)
 ```
 
-Conversely, If we want just the *non-geometric* part, it can be extracted with `st_drop_geometry`, resulting in a `data.frame`:
+Conversely, If we want just the *non-geometric* part (the "attributes"), it can be extracted with `st_drop_geometry` which returns a `data.frame`:
 
 ```{r}
 st_drop_geometry(nafot)
@@ -475,10 +478,10 @@ st_crs(nafot)
 
 ### Vector layer reprojection {#vector-layer-reprojection}
 
-**Reprojection** is the transformation of geometry coordinates, from one CRS to another. It is an important part of spatial analysis workflow since as we often need to:
+**Reprojection** is the transformation of geometry coordinates, from one CRS to another. It is an important part of spatial analysis workflow, since we often need to:
     
 * Transform several layers into the same projection, so that they can be displayed one on top of the other (e.g., Figure \@ref(fig:nafot-rail)) or so that they can be subject to a spatial operator (e.g., Figure \@ref(fig:geometry-generating-pairs))
-* Switch between un-projected and projected CRS
+* Switch between geographic and projected CRS
 
 A vector layer can be reprojected with `st_transform`. The `st_transform` function has two important parameters: 
 
@@ -496,10 +499,17 @@ For example, the following expression reprojects the `nafot` layer to the geogra
 
 ```{r}
 nafot_wgs84 = st_transform(nafot, 4326)
+```
+
+Printing the layer summary demostrates that the coordinates and CRS definition have changed:
+
+```{r}
 nafot_wgs84
 ```
 
-```{r, fig.cap="Nafot in UTM and WGS84 coordinate reference systems", fig.height=7, fig.width=4.5, out.width="40%", fig.show="hold"}
+The two layers, `nafot` and `nafot_wgs84`, are shown in Figure \@ref(fig:nafot-wgs84):
+
+```{r nafot-wgs84, fig.cap="Nafot in UTM and WGS84 coordinate reference systems", fig.height=7, fig.width=4.5, out.width="40%", fig.show="hold"}
 plot(st_geometry(nafot), main = "UTM", axes = TRUE)
 plot(st_geometry(nafot_wgs84), main = "WGS84", axes = TRUE)
 ```
@@ -508,7 +518,7 @@ plot(st_geometry(nafot_wgs84), main = "WGS84", axes = TRUE)
 
 ## Reading layers into R
 
-For the next series of examples, we read a second layer `RAIL_STRATEGIC.shp`. The layer contains Railways lines in Israel. Using `st_read`, we import the layer and create an `sf` object called `rail`:
+For the next series of examples, we read a second layer `RAIL_STRATEGIC.shp`. The layer contains railway lines in Israel. Using `st_read`, we import the layer and create an `sf` object called `rail`:
 
 ```{r}
 rail = st_read("data/RAIL_STRATEGIC.shp")
@@ -569,16 +579,22 @@ rail = rail["segment_id"]
 rail
 ```
 
+The modified layer is shown in Figure \@ref(fig:rail-active):
+
+```{r rail-active, fig.cap="Subset of active railway lines", fig.width=4, fig.height=6, out.width="50%", warning=FALSE}
+plot(rail)
+```
+
 ### Spatial
 
-We can also subset feature according to intersection with another layer, using the latter as an index. For example, the following expression creates a subset of `nafot`, named `nafot1`, with only those features intersecting the `rail` layer:
+We can also subset features according to whether they *intersect* with another layer, using the latter as an index. For example, the following expression creates a subset of `nafot`, named `nafot1`, with only those features intersecting the `rail` layer:
 
 ```{r}
 nafot1 = nafot[rail, ]
 nafot1
 ```
 
-Figure \@ref(fig:nafot-subset) shows the nafot subset (in grey fill) and the railway lines layer. 
+Figure \@ref(fig:nafot-subset) shows the nafot subset (in grey fill) and the railway lines layer:
 
 ```{r, eval=FALSE}
 plot(st_geometry(nafot), border = "grey50")
@@ -631,7 +647,7 @@ The result is an object of class `units`:
 class(nafot$area)
 ```
 
-We can convert measurements to different units with `set_units` from package `units`:
+We can convert measurements to different units with `set_units`, from package `units`:
 
 ```{r}
 library(units)
@@ -639,9 +655,9 @@ nafot$area = set_units(nafot$area, "km^2")
 nafot$area[1:3]
 ```
 
-Inspecting the result:
+Figure \@ref(fig:nafot-area) shows the result:
 
-```{r, fig.cap="Calculated `area` attribute", fig.width=4, fig.height=6, out.width="50%"}
+```{r nafot-area, fig.cap="Calculated `area` attribute", fig.width=4, fig.height=6, out.width="50%"}
 plot(nafot[, "area"])
 ```
 
@@ -671,9 +687,9 @@ int = st_intersects(nafot1, nafot1, sparse = FALSE)
 int
 ```
 
-The following code section visualizes the `matrix`:
+The following code section visualizes the `matrix` (Figure \@ref(fig:st-intersects-matrix)):
 
-```{r, fig.cap="Intersection relations between `nafot` features", out.width="80%"}
+```{r st-intersects-matrix, fig.cap="Intersection relations between `nafot` features", out.width="80%"}
 int1 = apply(int, 2, rev)
 int1 = t(int1)
 image(int1, col = c("lightgrey", "red"), asp = 1, axes = FALSE)
@@ -787,7 +803,12 @@ title("union(x, y)")
 par(opar)
 ```
 
-# Example #1: Rail density
+Now we move on to examples of two specific tasks:
+
+* Calculating line density per polygon (Section \@ref(example-1))
+* Calculating heirarchical clusters (Section \@ref(example-2))
+
+# Example #1: Rail density {#example-1}
 
 ## Splitting lines by polygons
 
@@ -890,7 +911,7 @@ plot(nafot[, "density"])
 plot(nafot)
 ```
 
-# Example #2: Population patterns
+# Example #2: Population patterns {#example-2}
 
 ## Reading statistical areas
 
@@ -1026,14 +1047,36 @@ dat[, 1:6]
 
 ## Hierarchical clustering
 
-```{r, fig.width=7, fig.height=4, out.width="100%"}
+Now we can calculate the distance (i.e., the dissimilarity) between Nafot age structures, and apply hierarchical clustering:
+
+```{r}
 d = dist(dat)
 hc = hclust(d, "average")
+```
+
+The dendrogram can then be split at a particular "level" to obtain a patricular number of distinct groups (such as `k=3`). The named vector `groups` specifies the classification of `nafot` features into three distinct clusters `1`, `2`, and `3`:
+
+```{r}
 k = 3
 groups = cutree(hc, k = k)
+groups
+```
+
+The dendrogram and the division to groups are shown in Figure \@ref(fig:hc-dendrogram):
+
+```{r hc-dendrogram, fig.cap="Hierarchical dendrogram of age structure per Nafa", fig.width=7, fig.height=4, out.width="100%"}
 plot(hc)
 rect.hclust(hc, k = k)
 ```
+
+The division to clusters can also be displayed on a map (Figure \@ref(fig:hc-map)):
+
+```{r hc-map, fig.cap="Age structure clusters on a map"}
+nafot$group = factor(groups)
+plot(nafot["group"])
+```
+
+Finally, to visualize the age structure distribution within each cluster, we can reshape the data:
 
 ```{r}
 library(reshape2)
@@ -1061,28 +1104,15 @@ dat2$group = factor(dat2$group, levels = 1:3, labels = x)
 head(dat2)
 ```
 
-The following Figures \@ref(fig:ggplot-1) and \@ref(fig:ggplot-2) show two ways to visualize the data. 
+and then use `ggplot2` (Figure \@ref(fig:ggplot-1)).
 
-```{r ggplot-1, fig.cap="Nafa clusters (lines)", fig.width=8, fig.height=4, out.width="100%"}
+```{r ggplot-1, fig.cap="Distribution of age structures in each cluster of `nafot`", fig.width=8, fig.height=4, out.width="100%"}
 library(ggplot2)
 ggplot(dat2, aes(x = variable, y = value, group = name)) +
     geom_line() +
     scale_x_discrete("Age group") +
     scale_y_continuous("Proportion") +
     facet_wrap(~ group) +
-    theme_bw() +
-    theme(
-      axis.text.x = element_text(angle = 90, vjust = 0.5)
-    )
-```
-
-```{r ggplot-2, fig.cap="Nafa clusters (columns)", fig.width=8, fig.height=4, out.width="100%"}
-ggplot(dat2, aes(x = name, y = value, fill = variable, group = name)) +
-    geom_col(colour = "black") +
-    scale_x_discrete("Nafa") +
-    scale_y_continuous("Proportion") +
-    scale_fill_manual("Age group", values = hcl.colors(length(levels(dat2$variable)), "Dark2")) +
-    facet_grid(. ~ group, scales = "free", space = "free") +
     theme_bw() +
     theme(
       axis.text.x = element_text(angle = 90, vjust = 0.5)
