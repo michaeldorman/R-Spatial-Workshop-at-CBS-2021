@@ -80,7 +80,7 @@ setwd("C:\\Data\\CSB")
 
 Alternatively, run the following expressions to automatically download and unzip the sample data into your current working directory:
 
-```{r}
+```{r, eval=FALSE}
 url = "https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/data.zip"
 download.file(url, "data.zip")
 unzip("data.zip")

@@ -1,8 +1,3 @@
-## ---- include=FALSE----------------------------------------------------
-knitr::opts_chunk$set(cache = FALSE, echo = TRUE, collapse = TRUE, fig.align = "center")
-# knitr::purl("preparation.Rmd", documentation = 1)
-
-
 ## ---- eval=FALSE-------------------------------------------------------
 ## install.packages("sf")
 

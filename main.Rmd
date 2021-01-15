@@ -21,7 +21,7 @@ pagetitle: Using R for Spatial Data Analysis
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(cache = FALSE, echo = TRUE, collapse = TRUE, fig.align = "center")
-# knitr::purl("main.Rmd", documentation = 1)
+# knitr::purl("main.Rmd", documentation = 2)
 ```
 
 # Setup: sample data {-}
@@ -49,6 +49,8 @@ The Rmarkdown file is available here:
 https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/preparation.Rmd
 
 All of the materials are also available on [GitHub](https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/).
+
+Please feel free to ask questions as we go along!
 
 # R for Spatial Data Analysis
 
@@ -103,7 +105,7 @@ Table: (\#tab:r-history) Significant events in the history of R-spatial
 
 ## R as a GIS?
 
-A question that arises, at this point, is: can R be used as a Geographic Information System (GIS), or as a comprehensive toolbox for doing spatial analysis? The answer is definitely *yes*. Moreover, R has some important advantages over traditional approaches to GIS, i.e., software with graphical user interfaces such as ArcGIS or QGIS. 
+A question that arises, at this point, is: can R be used as a Geographic Information System (GIS), or as a comprehensive toolbox for doing spatial analysis? The answer is definitely *yes*. Moreover, R has some important advantages over traditional approaches to GIS, i.e., software with GUIs such as ArcGIS or QGIS. 
 
 *General* advantages of Command Line Interface (CLI) software include:
 
@@ -112,7 +114,7 @@ A question that arises, at this point, is: can R be used as a Geographic Informa
 
 Moreover, *specific* strengths of R as a GIS are:
 
-* R capabilities in data **processing** and **visualization**, combined with dedicated **packages** for spatial data
+* R capabilities in data **processing**, **statistics**, and **visualization**, combined with dedicated **packages** for spatial data
 * A **single environment** encompassing all analysis aspects—acquiring data, computation, statistics, visualization, Web, etc.
 
 Nevertheless, there are situations when *other* tools are needed:
@@ -170,8 +172,13 @@ Geometric operations on *rasters* can be done with package `stars`:
 
 * **Accessing cell values**---As matrix / array, Extracting to points / lines / polygons
 * **Raster algebra**---Arithmetic (`+`, `-`, ...), Math (`sqrt`, `log10`, ...), logical (`!`, `==`, `>`, ...), summary (`mean`, `max`, ...), Masking
-* **Changing resolution and extent**---Cropping, Mosaic, Resampling, Reprojection
+* **Changing resolution and extent**---Cropping, Mosaic, Resampling, Reprojection (Figure \@ref(fig:modis-reprojection-complete))
 * **Transformations**---Raster <-> Points / Contour lines / Polygons
+
+```{r modis-reprojection-complete, echo=FALSE, fig.cap="Reprojection of the MODIS NDVI raster from Sinusoidal (left) to ITM (right)", fig.show="hold", out.width="40%"}
+knitr::include_graphics("images/modis-reprojection-complete-1.png")
+knitr::include_graphics("images/modis-reprojection-complete-2.png")
+```
 
 ## `gstat`: Interpolation
 
@@ -252,7 +259,14 @@ par(opar)
 
 ## `RPostgreSQL`: PostGIS {#rpostgresql-working-with-postgis}
 
-Package `sf` combined with `RPostgreSQL` can be used to read from, and write to, a **PostGIS** spatial database:
+When: 
+
+* working with big spatial data, and/or 
+* when data are collaboratively prepared by many users (e.g., in a large organization), 
+
+we may want to combine R with a (spatial) database.
+
+Package `sf` combined with `RPostgreSQL` can be used to read from, and write to, a **PostGIS** spatial database. First, we need to create a connection object:
 
 ```{r, eval=FALSE}
 library(sf)
@@ -268,30 +282,30 @@ con = dbConnect(
 )
 ```
 
+Then, we can read or write to the database, just like from a file, using the `st_read` function (Section \@ref(reading-vector-data)):
+
 ```{r, eval=FALSE}
-q = "SELECT name_lat, geometry FROM plants LIMIT 3;"
-st_read(con, query = q)
+st_read(con, query = "SELECT name_lat, geometry FROM plants LIMIT 3;")
 ```
 
 ```{r, echo=FALSE}
 library(sf)
 source("/home/michael/Sync/postgis_159.R")
-q = "SELECT name_lat, geometry FROM plants LIMIT 3;"
-st_read(con, query = q)
+st_read(con, query = "SELECT name_lat, geometry FROM plants LIMIT 3;")
 ```
 
-```{r, include=FALSE}
+```{r}
 dbDisconnect(con)
 ```
 
 ## Other examples
 
-* Network routing: `stplanr`, `dodgr`, `sfnetworks`, `igraph`
-* Simplification `rmapshaper`
-* Access to OSM data: `osmdata`, `osmextract`
-* Static mapping: `ggplot2`, `tmap`, `rasterVis`
-* Web mapping and web APIs: `leaflet`, `mapview`, `deckgl`, `mapsapi`
-* Spherical geometry: `geosphere`, `s2`, `lwgeom`
+* Network routing: [`stplanr`](https://cran.r-project.org/package=stplanr), [`dodgr`](https://cran.r-project.org/package=dodgr), [`sfnetworks`](https://github.com/luukvdmeer/sfnetworks), [`igraph`](https://cran.r-project.org/package=igraph)
+* Simplification: [`rmapshaper`](https://cran.r-project.org/package=rmapshaper)
+* Access to OpenStreetMap data: [`osmdata`](https://cran.r-project.org/package=osmdata), [`osmextract`](https://github.com/ITSLeeds/osmextract)
+* Static mapping: [`ggplot2`](https://cran.r-project.org/package=ggplot2), [`tmap`](https://cran.r-project.org/package=tmap), [`rasterVis`](https://cran.r-project.org/package=rasterVis)
+* Web mapping and web APIs: [`leaflet`](https://cran.r-project.org/package=leaflet), [`mapview`](https://cran.r-project.org/package=mapview), [`deckgl`](https://cran.r-project.org/package=deckgl), [`mapsapi`](https://cran.r-project.org/package=mapsapi)
+* Spherical geometry: [`geosphere`](https://cran.r-project.org/package=geosphere), [`s2`](https://cran.r-project.org/package=s2), [`lwgeom`](https://cran.r-project.org/package=lwgeom)
 
 # Spatial data structures
 
@@ -303,9 +317,9 @@ The `sf` package (Figure \@ref(fig:sf-r-journal)), released in 2016, is a newer 
 knitr::include_graphics("images/lesson_07_paper1.png")
 ```
 
-One of the important innovations in `sf` is a complete implementation of the [**Simple Features**](https://cran.r-project.org/web/packages/sf/vignettes/sf1.html) standard. Since 2003, Simple Features been widely implemented in **spatial databases** (such as **PostGIS**), commercial GIS (e.g., **ESRI ArcGIS**) and forms the vector data basis for libraries such as **GDAL**. The Simple Features standard defines several types of geometries, of which seven are most commonly used in the world of GIS and spatial data analysis (Figure \@ref(fig:geometry-types)). When working with spatial databases, Simple Features are commonly specified as [**Well Known Text (WKT)**](https://en.wikipedia.org/wiki/Well-known_text). A subset of simple features forms the [**GeoJSON**](https://en.wikipedia.org/wiki/GeoJSON) standard.
+One of the important innovations in `sf` is a complete implementation of the [**Simple Features**](https://cran.r-project.org/web/packages/sf/vignettes/sf1.html) standard. Since 2003, Simple Features been widely implemented in **spatial databases** (such as **PostGIS**), commercial GIS (e.g., **ESRI ArcGIS**) and forms the vector data basis for libraries such as **GDAL**. The Simple Features standard defines several types of geometries, of which seven are most commonly used in the world of GIS and spatial data analysis (Figure \@ref(fig:geometry-types)). When working with spatial databases, Simple Features are commonly specified as [**Well Known Text (WKT)**](https://en.wikipedia.org/wiki/Well-known_text).
 
-```{r geometry-types, echo=FALSE, fig.cap="Simple Feature types (see also: https://r-spatial.github.io/sf/articles/sf1.html)", fig.width=6.8, fig.height=4, out.width="80%", warning=FALSE, message=FALSE}
+```{r geometry-types, echo=FALSE, fig.cap="Seven Simple Feature geometry types most commonly used in GIS (see also: https://r-spatial.github.io/sf/articles/sf1.html)", fig.width=6.8, fig.height=4, out.width="80%", warning=FALSE, message=FALSE}
 library(sf)
 library(units)
 point = st_as_sfc("POINT (30 10)")[[1]]
@@ -341,7 +355,7 @@ knitr::include_graphics("images/sf_deps.png")
 
 ## `sf` data structures {#sf-data-structures}
 
-Package `sf` defines a *hierarchical* class system with three classes (Table \@ref(tab:structures-package-sf)):
+Package `sf` defines a *hierarchical* class system, with three classes (Table \@ref(tab:structures-package-sf)):
 
 * Class `sfg`---a *single* geometry
 * Class `sfc`---a geometry column, which is a *set* of `sfg` geometries + CRS information
@@ -399,33 +413,37 @@ lapply(names(sessionInfo()$loadedOnly), require, character.only = TRUE)
 invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE, force=TRUE))
 ```
 
-## Reading vector data
+## Reading vector data {#reading-vector-data}
 
-Function `st_read` can be used to read vector layers into `sf` data structures. First, we load the `sf` package:
+We move on to practical examples. First, let's see what importing and examining `sf` layers looks like, in the R environment.
+
+Function `st_read` can be used to read vector layers into `sf` data structures. Before doing anything else we need to load the `sf` package:
 
 ```{r}
 library(sf)
 ```
 
-Then, we can use `st_read` to import a vector into the R environment. In this case, we are reading the `nafot.shp` Shapefile:
+Then, we can use `st_read` to import a vector layer into the R environment. In this case, we are reading the `nafot.shp` Shapefile:
 
 ```{r}
 nafot = st_read("data/nafot.shp")
 ```
 
-Printing the object gives a summary of its properties, and the values of the (first 10) features:
+Printing the object gives a summary of its properties, and the values of the (first 10) features. In this case, we see that the `nafot` layer has `r nrow(nafot)` features, and one attribute called `name_eng`:
 
 ```{r}
 nafot
 ```
 
-As mentioned above, a layer (geometry+attributes) is represented by an `sf` object. The second printed value, `data.frame`, implies that `sf` is, in fact, an extension of the `data.frame` class, inheriting many of its methods. Indeed, we will see that many functions in R work exactly the same way on `sf` and `data.frame` objects.
+The `class` function, applied on an `sf` layer, returns both `"sf"` and `"data.frame"` class names:
 
 ```{r}
 class(nafot)
 ```
 
-If we want just the *geometric* part, it can be extracted with `st_geometry`, resulting in an object of class `sfc` (geometry column):
+As mentioned above, a layer (geometry+attributes) is represented by an `sf` object. The second printed value, `data.frame`, implies that `sf` is, in fact, an extension of the `data.frame` class, inheriting many of its methods. Indeed, we will see that many functions in R work exactly the same way on `sf` and `data.frame` objects.
+
+If we want just the *geometric* part, it can be extracted with `st_geometry`, resulting in an object of class `sfc`, i.e., a geometry column (Table \@ref(tab:structures-package-sf)):
 
 ```{r}
 st_geometry(nafot)
@@ -518,11 +536,13 @@ plot(st_geometry(nafot_wgs84), main = "WGS84", axes = TRUE)
 
 ## Reading layers into R
 
-For the next series of examples, we read a second layer `RAIL_STRATEGIC.shp`. The layer contains railway lines in Israel. Using `st_read`, we import the layer and create an `sf` object called `rail`:
+For the next series of examples, we read a second layer called `RAIL_STRATEGIC.shp`. The `RAIL_STRATEGIC.shp` layer contains railway lines in Israel. Using `st_read`, we import the layer and create an `sf` object called `rail`:
 
 ```{r}
-rail = st_read("data/RAIL_STRATEGIC.shp")
+rail = st_read("data/RAIL_STRATEGIC.shp", options = "ENCODING=UTF-8")
 ```
+
+(Note that the `ENCODING` option is only needed when operating system default encoding is not the same as the layer encoding.)
 
 Here is a summary of the `rail` layer:
 
@@ -532,7 +552,7 @@ rail
 
 ## Reprojection
 
-For any type of spatial analysis, we usually need all input layers to be in the same CRS. For that purpose, we will reproject the `rail` layer to the CRS of the `nafot` layer:
+For any type of spatial analysis, we usually need all input layers to be in the same CRS. For this purpose, we will reproject the `rail` layer to the CRS of the `nafot` layer:
 
 ```{r}
 rail = st_transform(rail, st_crs(nafot))
@@ -546,17 +566,23 @@ We can plot the `rail` layer on its own, as shown in Figure \@ref(fig:plot-rail)
 plot(rail)
 ```
 
+Or plot just one attribute, in which case there is a legened (Figure \@ref(fig:plot-rail-one-attr)):
+
+```{r plot-rail-one-attr, fig.cap="One attribute of the `rail` layer", fig.width=4, fig.height=6, out.width="50%", warning=FALSE}
+plot(rail["ISACTIVE"], key.width = lcm(3))
+```
+
 We can also plot the `nafot` and `rail` geometries together, to examine their arrangement (Figure \@ref(fig:nafot-rail)). The second expression uses `add=TRUE` to add the geometries on top of the existing plot, instead of initializing a new one:
 
 ```{r, eval=FALSE}
 plot(st_geometry(nafot), border = "grey")
-plot(st_geometry(rail), add = TRUE)
+plot(st_geometry(rail), col = "red", add = TRUE)
 ```
 
 ```{r nafot-rail, echo=FALSE, fig.cap="The `nafot` and `rail` geometries", fig.width=4, fig.height=6, out.width="50%", warning=FALSE}
 opar = par(mar = rep(0, 4))
 plot(st_geometry(nafot), border = "grey")
-plot(st_geometry(rail), add = TRUE)
+plot(st_geometry(rail), col = "red", add = TRUE)
 par(opar)
 ```
 
@@ -564,7 +590,7 @@ par(opar)
 
 ### Non-spatial
 
-Subsetting (filtering) of features in an `sf` vector layer is done in exactly the same way as filtering rows in a `data.frame`. For example, the following expression filters the `rail` layer to keep only those railway lines which are active: 
+Non-spatial subsetting of features in an `sf` vector layer, e.g., according to attribute values, is done in exactly the same way as in a `data.frame`. For example, the following expression selects the `rail` features for active lines, using the logical vector `rail$ISACTIVE == "פעיל"` as the rows index: 
 
 ```{r}
 rail = rail[rail$ISACTIVE == "פעיל", ]
@@ -594,19 +620,19 @@ nafot1 = nafot[rail, ]
 nafot1
 ```
 
-Figure \@ref(fig:nafot-subset) shows the nafot subset (in grey fill) and the railway lines layer:
+Figure \@ref(fig:nafot-subset) shows the `nafot1` subset (in grey fill), the complete `nafot` layer (in grey outline), and the railway lines layer (in red):
 
 ```{r, eval=FALSE}
-plot(st_geometry(nafot), border = "grey50")
-plot(st_geometry(nafot1), border = "grey50", col = "grey90", add = TRUE)
-plot(st_geometry(rail), add = TRUE)
+plot(st_geometry(nafot), border = "grey")
+plot(st_geometry(nafot1), border = "grey", col = "grey90", add = TRUE)
+plot(st_geometry(rail), col = "red", add = TRUE)
 ```
 
 ```{r nafot-subset, echo=FALSE, fig.cap="The `nafot` and `rail` geometries", fig.width=4, fig.height=6, out.width="50%", warning=FALSE}
 opar = par(mar = rep(0, 4))
-plot(st_geometry(nafot), border = "grey50")
-plot(st_geometry(nafot1), border = "grey50", col = "grey90", add = TRUE)
-plot(st_geometry(rail), add = TRUE)
+plot(st_geometry(nafot), border = "grey")
+plot(st_geometry(nafot1), border = "grey", col = "grey90", add = TRUE)
+plot(st_geometry(rail), col = "red", add = TRUE)
 par(opar)
 ```
 
@@ -628,56 +654,80 @@ Geometric operations on vector layers can conceptually be divided into three gro
 
 There are several functions to calculate *numeric* geometric properties of vector layers in package `sf`:
 
-* `st_length`
-* `st_area`
-* `st_distance`
-* `st_bbox`
-* `st_dimension`
+* `st_length`---Length
+* `st_area`---Area
+* `st_distance`---Distance
+* `st_bbox`---Bounding box
+* `st_dimension`---Dimensions (0 = points, 1 = lines, 2 = polygons)
 
-For example, we can calculate the area of each feature in the `nafot` layer (i.e. each state) using `st_area`:
+For example, we can calculate the area of each feature in the `nafot` layer using `st_area`. The result is assigned to a new attribute named `area` in `nafot`:
 
 ```{r}
 nafot$area = st_area(nafot)
-nafot$area[1:3]
 ```
 
-The result is an object of class `units`:
+The `nafot` layer now has a new attribute named `area`, with the "Nafa" polygon areas:
+
+```{r}
+nafot
+```
+
+You may notice the `area` values are printed with their units `[m^2]`. The resulting area values, just like any other numeric calculations in `sf`, are returned as object of class `units`: 
 
 ```{r}
 class(nafot$area)
 ```
 
-We can convert measurements to different units with `set_units`, from package `units`:
+A `units` object is basically a numeric vector associated with units of measurement. We can transform `units` measurements to different units, with function `set_units` from package `units`. First, we load the `units` library:
 
 ```{r}
 library(units)
-nafot$area = set_units(nafot$area, "km^2")
-nafot$area[1:3]
 ```
 
-Figure \@ref(fig:nafot-area) shows the result:
+Then, we make the transformation to $km^2$ units:
+
+```{r}
+nafot$area = set_units(nafot$area, "km^2")
+```
+
+The modified `area` column can be observed in the layer summary:
+
+```{r}
+nafot
+```
+
+Figure \@ref(fig:nafot-area) shows a map of the calculated area sizes:
 
 ```{r nafot-area, fig.cap="Calculated `area` attribute", fig.width=4, fig.height=6, out.width="50%"}
-plot(nafot[, "area"])
+plot(nafot["area"])
 ```
 
 ### Logical {#logical-geometric-calculations}
 
-Given two layers, `x` and `y`, the following *logical* geometric functions check whether each feature in `x` maintains the specified relation with each feature in `y`:
+Given two layers, `x` and `y`, the following *logical* geometric functions check whether each feature in `x` maintains the specified relation with each feature in `y` (Table tab:logical-geometric-functions).
 
-* `st_intersects`
-* `st_disjoint`
-* `st_touches`
-* `st_crosses`
-* `st_within`
-* `st_contains`
-* `st_overlaps`
-* `st_covers`
-* `st_covered_by`
-* `st_equals`
-* `st_equals_exact`
+| Function | Value | Inverse of |
+|--------|-----------------------------------|--------|
+|`st_contains`| None of the points of A are outside B| `st_within`|
+|`st_contains_properly`| A contains B and B has no points in common with the boundary of A| |
+|`st_covers`| No points of B lie in the exterior of A| `st_covered_by`|
+|`st_covered_by`|inverse of `st_covers`| |
+|`st_crosses`|A and B have some but not all interior points in common| |
+|`st_disjoint` |A and B have no points in common| `st_intersects`|
+|`st_equals` |A and B are geometrically equal; node order number of nodes may differ; identical to A contains B AND A within B|
+|`st_equals_exact` |A and B are geometrically equal, and have identical node order| |
+|`st_intersects`|A and B are not disjoint| `st_disjoint`|
+|`st_is_within_distance`|A is closer to B than a given distance|
+|`st_within`|None of the points of B are outside A| `st_contains`|
+|`st_touches`|A and B have at least one boundary point in common, but no interior points|  |
+|`st_overlaps`|A and B have some points in common; the dimension of these is identical to that of A and B|  |
+|`st_relate`|given a pattern, returns whether A and B adhere to this pattern| |
 
-When specifying `sparse=FALSE` the functions return a logical `matrix`. Each element `i,j` in the `matrix` is `TRUE` when `f(x[i], y[j])` is `TRUE`. For example, this creates a matrix of *intersection* relations between nafot:
+Table: (\#tab:logical-geometric-functions) Logical geometric functions (from https://keen-swartz-3146c4.netlify.app/geommanip.html#predicates)
+
+When specifying `sparse=FALSE` the functions return a logical `matrix`. Each element `i,j` in the `matrix` is `TRUE` when `f(x[i], y[j])` is `TRUE`. 
+
+For example, this creates a matrix of *intersection* relations between nafot:
 
 ```{r}
 int = st_intersects(nafot1, nafot1, sparse = FALSE)
@@ -701,13 +751,13 @@ axis(2, at = seq(0, 1, 1/(nrow(int1)-1)), labels = rev(nafot1$name_eng), las = 1
 
 `sf` provides common *geometry-generating* functions applicable to individual geometries, such as:
 
-* `st_centroid`
-* `st_buffer`
-* `st_sample`
-* `st_convex_hull`
-* `st_voronoi`
+* `st_centroid`---Centroids
+* `st_buffer`---Buffer
+* `st_sample`---Random sample points
+* `st_convex_hull`---Convex hull
+* `st_voronoi`---Voronoi polygons
 
-```{r, echo=FALSE, fig.cap="Geometry-generating operations on individual layers", fig.height=4, fig.width=6, out.width="100%"}
+```{r, echo=FALSE, fig.cap="Geometry-generating operations on individual layers", fig.height=4, fig.width=6, out.width="80%"}
 set.seed(1)
 x = st_multipoint(matrix(runif(10), ncol = 2))
 x = st_buffer(st_sfc(lapply(1:3, function(x) st_point(c(x,x)))), 0.2 * 1:3)
@@ -740,7 +790,7 @@ title("st_voronoi")
 par(opar)
 ```
 
-For example, the following expression uses `st_centroid` to create a layer of "Nafa" centroids:
+For example, to calculate the centroids of the "Nafa" polygons we can use the `st_centroid` function as follows:
 
 ```{r, warning=FALSE}
 nafot_ctr = st_centroid(nafot)
@@ -753,7 +803,7 @@ plot(st_geometry(nafot), border = "grey")
 plot(st_geometry(nafot_ctr), col = "red", pch = 3, add = TRUE)
 ```
 
-```{r nafot-ctr, echo=FALSE, fig.cap="State centroids", fig.width=4, fig.height=6, out.width="50%", warning=FALSE}
+```{r nafot-ctr, echo=FALSE, fig.cap='"Nafot" centroids', fig.width=4, fig.height=6, out.width="50%", warning=FALSE}
 opar = par(mar = rep(0, 4))
 plot(st_geometry(nafot), border = "grey")
 plot(st_geometry(nafot_ctr), col = "red", pch = 3, add = TRUE)
@@ -784,21 +834,21 @@ title("x: red, y: green")
 
 plot(xy, border = "grey")
 plot(st_intersection(x, y), col = "lightblue", add = TRUE)
-title("intersection(x, y)")
+title("st_intersection(x, y)")
 
 plot(xy, border = "grey")
 plot(st_difference(x, y), col = "lightblue", add = TRUE)
-title("difference(x, y)")
+title("st_difference(x, y)")
 
 plot(xy, border = NA)
 
 plot(xy, border = "grey")
 plot(st_sym_difference(x, y), col = "lightblue", add = TRUE)
-title("sym_difference(x, y)")
+title("st_sym_difference(x, y)")
 
 plot(xy, border = "grey")
 plot(st_union(x, y), col = "lightblue", add = TRUE)
-title("union(x, y)")
+title("st_union(x, y)")
 
 par(opar)
 ```
@@ -812,89 +862,115 @@ Now we move on to examples of two specific tasks:
 
 ## Splitting lines by polygons
 
-For example, to calculate total rail length per "Nafa" we can use `st_intersection` to 'split' the `rail` layer by "Nafa":
+In this example, our goal is to calculate the average rail density ($km$ per $km^2$) per "Nafa" (Figure \@ref(fig:density-2)). To calculate total railway length per "Nafa", we are going to dissolve the `rail` layer, then split it by "Nafa" polygons. 
+
+First, we "dissolve" the railway layer into a single `MULTILINESTRING` geometry:
+
+```{r, message=FALSE, warning=FALSE}
+rail = st_union(rail)
+rail
+```
+
+The result is a geometry column (`sfc`), which we convert to `sf` so that it can accomodate "Nafa" name attribute later on:
+
+```{r}
+rail = st_sf(geometry = rail)
+rail
+```
+
+Then, we "split" the `rail` layer back according to "Nafot" polygons using `st_intersection` (Section \@ref(spatial-geometric-calculations)):
 
 ```{r, message=FALSE, warning=FALSE}
 rail_int = st_intersection(rail, nafot)
+```
+
+The result is a new line layer of `r nrow(rail_int)` `MULTILINESTRING` geometries, including the `name_eng` attribute of the corresponding "Nafa" they intersect with:
+
+```{r}
 rail_int
 ```
 
-The result is a new line layer split by "Nafa" borders and including the `name_eng` attribute:
+The layer is visualized in Figure \@ref(fig:nafa-rail-intersection):
 
-```{r, fig.cap="Intersection result", fig.width=4, fig.height=6, out.width="50%", warning=FALSE}
-plot(rail_int[, "name_eng"], lwd = 3, key.width = lcm(4), reset = FALSE)
+```{r nafa-rail-intersection, fig.cap="Intersection result", fig.width=4, fig.height=6, out.width="50%", warning=FALSE}
+plot(rail_int["name_eng"], lwd = 3, key.width = lcm(4), reset = FALSE)
 plot(st_geometry(nafot), border = "lightgrey", add = TRUE)
 ```
 
 ## Line length
 
-The resulting layer has mixed `LINESTERING` and `MULTILINESTRING` geometries (Why?)
-
-```{r}
-class(rail_int$geometry)
-```
-
-To calculate line length, we need to convert it to `MULTILINESTRING`:
-
-```{r}
-rail_int = st_cast(rail_int, "MULTILINESTRING")
-rail_int
-```
-
-Let's add a **railway length** attribute called `length`:
+Next, we will calculate line *length* of each rail segment, using function `st_length` (Section \@ref(numeric-geometric-calculations)). We assign the result into a railway length attribute called `length`:
 
 ```{r}
 rail_int$length = st_length(rail_int)
-rail_int$length = set_units(rail_int$length, km)
 rail_int
+```
+
+For convenience, we will also convert the values from $m$ units to $km$ units:
+
+```{r}
+rail_int$length = set_units(rail_int$length, "km")
+rail_int
+```
+
+The lengths are visualized in Figure \@ref(fig:nafa-rail-lengths):
+
+```{r nafa-rail-lengths, fig.cap="Intersection result", fig.width=4, fig.height=6, out.width="50%", warning=FALSE}
+plot(rail_int["name_eng"], lwd = 3, key.width = lcm(4), reset = FALSE)
+plot(st_geometry(nafot), border = "lightgrey", add = TRUE)
+text(st_coordinates(st_centroid(rail_int)), as.character(round(rail_int$length)))
 ```
 
 ## Join layer with table
 
-Next we aggregate attribute table of `rail_int` by `state`, to find the sum of `length` values:
-
-```{r, message=FALSE}
-rail_int = st_drop_geometry(rail_int) 
-rail_int = aggregate(rail_int["length"], rail_int["name_eng"], sum)
-```
-
-The result is a `data.frame` with total length of railway tracks, per "Nafa":
+To transfer the track lengths to the `nafot` layer, we use a non-spatial *join*. First, we extract the attribute table of `rail_int`:
 
 ```{r}
-head(rail_int)
+rail_int = st_drop_geometry(rail_int)
+rail_int
 ```
 
-Next, we can *join* the aggregated table back to the `nafot` layer:
+and keep just the `name_eng` and `length` attributes:
+
+```{r}
+rail_int = rail_int[c("name_eng", "length")]
+rail_int
+```
+
+Then we can join `nafot` and `rail_int`, by the common column `"name_eng"`:
 
 ```{r}
 nafot = merge(nafot, rail_int, by = "name_eng", all.x = TRUE)
 ```
 
-Here is how the `nafot` layer looks like after the join:
+As a result of the join operation, the `nafot` layer now has a new `length` attribute:
 
 ```{r}
 nafot
 ```
 
-Length of `NA` implies there are no railways in the polygon. These `NA` values should therefore be replaced with zero:
+Length of `NA` implies there are no railways in that polygon. These `NA` values should be replaced with zero:
 
 ```{r}
 nafot$length[is.na(nafot$length)] = 0
+nafot
 ```
 
-```{r, fig.cap="Total railway length per Nafa", out.width="50%", warning=FALSE, fig.width=4, fig.height=6}
+The calculated total lengths per "Nafa" are shown in Figure \@ref(fig:length-per-nafa):
+
+```{r length-per-nafa, fig.cap="Total railway length per Nafa", out.width="50%", warning=FALSE, fig.width=4, fig.height=6}
 plot(nafot[, "length"])
 ```
 
 ## Calculating density
 
-Finally, we divide total railway length by state area. This gives us railway **density** per state:
+Now that we know the total railway length and the area, per "Nafa", we can divide total railway length by area. This gives us railway **density** per "Nafa":
 
 ```{r}
 nafot$density = nafot$length / nafot$area
 ```
 
-Sorted:
+Sorting the features lets us clearly see which "Nafa" has the highest densities of railway lines:
 
 ```{r}
 nafot = nafot[order(nafot$density, decreasing = TRUE), ]
@@ -903,8 +979,8 @@ nafot
 
 Plotting the layer shows the new `density` attribute (Figures \@ref(fig:density-1) and \@ref(fig:density-2)):
 
-```{r density-1, fig.cap="railway density per state", out.width="50%", warning=FALSE, fig.width=4, fig.height=6}
-plot(nafot[, "density"])
+```{r density-1, fig.cap='Railway density per "Nafa"', out.width="50%", warning=FALSE, fig.width=4, fig.height=6}
+plot(nafot["density"])
 ```
 
 ```{r density-2, fig.cap="Nafot layer with calculated attributes", warning=FALSE}
@@ -915,10 +991,12 @@ plot(nafot)
 
 ## Reading statistical areas
 
-In the second example, we are going to examine the dissimilarity between "Nafot" in terms of their age structure. The demographic data come at the statistical area level, which we are going to aggregate to the "Nafa" level. First, we read the statistical areas Shapefile:
+In the second example, we are going to examine the dissimilarity between "Nafot" in terms of their age structure. The demographic data come at the statistical area level, which we are going to aggregate to the "Nafa" level. 
+
+First, we read the statistical areas Shapefile:
 
 ```{r}
-stat = st_read("data/statisticalareas_demography2018.gdb")
+stat = st_read("data/statisticalareas_demography2018.gdb", options = "ENCODING=UTF-8")
 ```
 
 ## Subsetting
@@ -930,25 +1008,12 @@ vars = colnames(stat)
 vars
 ```
 
-but, in this case, we are only interested in the population estimates per age group:
+For the example, we are only interested in the population estimates per age group:
 
 ```{r}
 vars = vars[grepl("age_", vars)]
 vars
-```
-
-We will retain only the latter the attributes:
-
-```{r}
 stat = stat[vars]
-```
-
-## Reprojecting
-
-Again, we need to make sure both layers are in the same CRS:
-
-```{r}
-stat = st_transform(stat, st_crs(nafot))
 ```
 
 The resulting subset of the `stat` layer is shown in Figure \@ref(fig:stat-layer).
@@ -957,36 +1022,44 @@ The resulting subset of the `stat` layer is shown in Figure \@ref(fig:stat-layer
 plot(stat, max.plot = 16)
 ```
 
-Figure \@ref(fig:stat-one-attr) shows one of the attributes in `stat` with the `nafot` layer on top:
+## Filling missing data
 
-```{r stat-one-attr, fig.width=4, fig.height=6, fig.cap="The `age_10_14` attribute in `stat`, and the `nafot` layer", out.width="50%"}
-plot(stat["age_10_14"], pal = hcl.colors(12, "Reds", rev = TRUE), border = "black", lwd = 0.07, reset = FALSE)
-plot(st_geometry(nafot), border = "grey", add = TRUE)
-```
-
-## Fill missing data
-
-One thing we may notice in Figure \@ref(fig:stat-one-attr), is that many of the statistical areas have `NA` values, meaning zero (rather than unknown) population size. For all practical purposes these should be replaced with "true" zero:
+One thing we may notice in Figures \@ref(fig:stat-layer) and \@ref(fig:stat-one-attr), is that many of the statistical areas have `NA` values, meaning zero (rather than unknown) population size. For all practical purposes these should be replaced with "true" zero:
 
 ```{r}
 stat[is.na(stat)] = 0
 ```
 
-The modification is demonstrated in Figure \@ref(fig:stat-one-attr2). Now we are ready to "transfer" the demographic estimates from the statistical area level, to the "Nafa" level.
+The modification is demonstrated in Figure \@ref(fig:stat-layer-filled):
 
-```{r stat-one-attr2, fig.width=4, fig.height=6, fig.cap="The `age_10_14` attribute in `stat`, and the `nafot` layer", out.width="50%"}
+```{r stat-layer-filled, fig.width=9, fig.height=5, fig.cap="Population estimates in the `stat` layer", out.width="100%"}
+plot(stat, max.plot = 16)
+```
+
+## Reprojecting
+
+Next, we are going to calculate the average population structure per "Nafa", based on the statistical areas. First of all, we need to make sure both layers are in the same CRS:
+
+```{r}
+stat = st_transform(stat, st_crs(nafot))
+```
+
+Figure \@ref(fig:stat-one-attr) shows one of the attributes in `stat` with the `nafot` layer on top:
+
+```{r stat-one-attr, fig.width=4, fig.height=6, fig.cap="The `age_10_14` attribute in `stat`, and the `nafot` layer", out.width="50%"}
 plot(stat["age_10_14"], pal = hcl.colors(12, "Reds", rev = TRUE), border = "black", lwd = 0.07, reset = FALSE)
-plot(st_geometry(nafot), border = "grey", add = TRUE)
+plot(st_geometry(nafot), add = TRUE)
 ```
 
 ## Area weighted sum
 
-Now, in theory, we are ready to calculate the weighted sum of population per "Nafa", using function `st_interpolate_aw`. The 
-function requires three parameters:
+Now, in theory, we are ready to calculate the weighted sum of population per "Nafa", using function `st_interpolate_aw`. The function requires three parameters:
 
 * `x`---Input layer (with values to transfer)
 * `to`---Target geometries (where to transfer values)
-* `extensive`---Spatially extensive, like population (`TRUE`), or spatially intensive, like population density (`FALSE`)
+* `extensive`---Spatially extensive variables which are summed, such as population (`TRUE`), or spatially intensive variables which are averaged, such as population density (`FALSE`)
+
+In our case, the appropriate expression is:
 
 ```{r, eval=FALSE}
 st_interpolate_aw(stat, nafot, extensive = TRUE)
@@ -994,26 +1067,31 @@ st_interpolate_aw(stat, nafot, extensive = TRUE)
 
 ## Standardizing geometries
 
-Now, in theory, we are ready to calculate the weighted sum of population per "Nafa", using function `st_interpolate_aw`. The 
+However, the operation fails, since the layer contains unsapported geometry types:
 
 ```{r, error=TRUE}
 x = st_interpolate_aw(stat, nafot, extensive = TRUE)
 ```
 
+namely, `MULTISURFACE` geometries:
+
 ```{r}
 as.data.frame(table(st_geometry_type(stat)))
 ```
+
+We can "cast" the latter to `MULTIPOLYGON`, as follows:
 
 ```{r}
 stat = st_cast(stat, "MULTIPOLYGON")
+```
+
+Now, all `r nrow(stat)` features in `stat` are of type `MULTIPOLYGON`:
+
+```{r}
 as.data.frame(table(st_geometry_type(stat)))
 ```
 
-## Fix topolopgy
-
-```{r, error=TRUE}
-x = st_interpolate_aw(stat, nafot, extensive = TRUE)
-```
+It may also be necessary to make a topological correction, depending on the version of `sf`:
 
 ```{r}
 stat = st_make_valid(stat)
@@ -1021,24 +1099,30 @@ stat = st_make_valid(stat)
 
 ## Area-weighed interpolation
 
+The following expression calculates the area-weighted average population properties per "Nafa":
+
 ```{r}
 x = st_interpolate_aw(stat, nafot, extensive = TRUE)
 x$Group.1 = NULL
 ```
 
-The result...
+The resulting layer is shown in Figure \@ref(fig:aw-nafa):
 
-```{r, fig.width=9, fig.height=5, out.width="100%"}
+```{r aw-nafa, fig.cap='Area-weighted counts per age group, by "Nafa"', fig.width=9, fig.height=5, out.width="100%"}
 plot(x, max.plot = 16)
 ```
 
 ## Calculating proportions
+
+Next, we extract the attribute table:
 
 ```{r}
 dat = st_drop_geometry(x)
 rownames(dat) = nafot$name_eng
 dat[, 1:6]
 ```
+
+and use `sweep` to divid each row by its sum, transforming counts to proportions: 
 
 ```{r}
 dat = sweep(dat, 1, rowSums(dat), "/")
