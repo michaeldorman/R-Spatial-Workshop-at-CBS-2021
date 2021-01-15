@@ -881,19 +881,19 @@ rail
 Then, we "split" the `rail` layer back according to "Nafot" polygons using `st_intersection` (Section \@ref(spatial-geometric-calculations)):
 
 ```{r, message=FALSE, warning=FALSE}
-rail_int = st_intersection(rail, nafot)
+rail = st_intersection(rail, nafot)
 ```
 
-The result is a new line layer of `r nrow(rail_int)` `MULTILINESTRING` geometries, including the `name_eng` attribute of the corresponding "Nafa" they intersect with:
+The result is a new line layer of `r nrow(rail)` `MULTILINESTRING` geometries, including the `name_eng` attribute of the corresponding "Nafa" they intersect with:
 
 ```{r}
-rail_int
+rail
 ```
 
 The layer is visualized in Figure \@ref(fig:nafa-rail-intersection):
 
 ```{r nafa-rail-intersection, fig.cap="Intersection result", fig.width=4, fig.height=6, out.width="50%", warning=FALSE}
-plot(rail_int["name_eng"], lwd = 3, key.width = lcm(4), reset = FALSE)
+plot(rail["name_eng"], lwd = 3, key.width = lcm(4), reset = FALSE)
 plot(st_geometry(nafot), border = "lightgrey", add = TRUE)
 ```
 
@@ -902,45 +902,45 @@ plot(st_geometry(nafot), border = "lightgrey", add = TRUE)
 Next, we will calculate line *length* of each rail segment, using function `st_length` (Section \@ref(numeric-geometric-calculations)). We assign the result into a railway length attribute called `length`:
 
 ```{r}
-rail_int$length = st_length(rail_int)
-rail_int
+rail$length = st_length(rail)
+rail
 ```
 
 For convenience, we will also convert the values from $m$ units to $km$ units:
 
 ```{r}
-rail_int$length = set_units(rail_int$length, "km")
-rail_int
+rail$length = set_units(rail$length, "km")
+rail
 ```
 
 The lengths are visualized in Figure \@ref(fig:nafa-rail-lengths):
 
 ```{r nafa-rail-lengths, fig.cap="Intersection result", fig.width=4, fig.height=6, out.width="50%", warning=FALSE}
-plot(rail_int["name_eng"], lwd = 3, key.width = lcm(4), reset = FALSE)
+plot(rail["name_eng"], lwd = 3, key.width = lcm(4), reset = FALSE)
 plot(st_geometry(nafot), border = "lightgrey", add = TRUE)
-text(st_coordinates(st_centroid(rail_int)), as.character(round(rail_int$length)))
+text(st_coordinates(st_centroid(rail)), as.character(round(rail$length)))
 ```
 
 ## Join layer with table
 
-To transfer the track lengths to the `nafot` layer, we use a non-spatial *join*. First, we extract the attribute table of `rail_int`:
+To transfer the track lengths we just calculated to the polygonal `nafot` layer, we use a non-spatial *join*. First, we extract the attribute table of `rail`, using `st_drop_geometry` (Section \@ref(reading-vector-data)):
 
 ```{r}
-rail_int = st_drop_geometry(rail_int)
-rail_int
+rail = st_drop_geometry(rail)
+rail
 ```
 
-and keep just the `name_eng` and `length` attributes:
+and keep just the `name_eng` and `length` columns:
 
 ```{r}
-rail_int = rail_int[c("name_eng", "length")]
-rail_int
+rail = rail[c("name_eng", "length")]
+rail
 ```
 
-Then we can join `nafot` and `rail_int`, by the common column `"name_eng"`:
+Now we can join `nafot` and `rail`, by the common column `"name_eng"`. This is done using function `merge`. The additional argument `all.x=TRUE` implies a left join:
 
 ```{r}
-nafot = merge(nafot, rail_int, by = "name_eng", all.x = TRUE)
+nafot = merge(nafot, rail, by = "name_eng", all.x = TRUE)
 ```
 
 As a result of the join operation, the `nafot` layer now has a new `length` attribute:
@@ -949,7 +949,7 @@ As a result of the join operation, the `nafot` layer now has a new `length` attr
 nafot
 ```
 
-Length of `NA` implies there are no railways in that polygon. These `NA` values should be replaced with zero:
+Length of `NA` implies there was no matching `rail` feature, which means there are no railways in the "Nafa". These `NA` values should be replaced with zero:
 
 ```{r}
 nafot$length[is.na(nafot$length)] = 0
@@ -964,7 +964,7 @@ plot(nafot[, "length"])
 
 ## Calculating density
 
-Now that we know the total railway length and the area, per "Nafa", we can divide total railway length by area. This gives us railway **density** per "Nafa":
+Now that we know the total railway length and the area, per "Nafa", we can divide total railway length by area. This gives us railway *density* per "Nafa":
 
 ```{r}
 nafot$density = nafot$length / nafot$area
@@ -977,11 +977,13 @@ nafot = nafot[order(nafot$density, decreasing = TRUE), ]
 nafot
 ```
 
-Plotting the layer shows the new `density` attribute (Figures \@ref(fig:density-1) and \@ref(fig:density-2)):
+Plotting the layer shows the new `density` attribute (Figures \@ref(fig:density-1) on its own: 
 
 ```{r density-1, fig.cap='Railway density per "Nafa"', out.width="50%", warning=FALSE, fig.width=4, fig.height=6}
 plot(nafot["density"])
 ```
+
+or along with \@ref(fig:density-2)) the other attributes:
 
 ```{r density-2, fig.cap="Nafot layer with calculated attributes", warning=FALSE}
 plot(nafot)
@@ -991,9 +993,9 @@ plot(nafot)
 
 ## Reading statistical areas
 
-In the second example, we are going to examine the dissimilarity between "Nafot" in terms of their age structure. The demographic data come at the statistical area level, which we are going to aggregate to the "Nafa" level. 
+In the second example, we are going to examine the dissimilarity between "Nafot" in terms of their population age structure. The demographic data come at the statistical area level, which we are going to aggregate to the "Nafa" level. 
 
-First, we read the statistical areas Shapefile:
+First, we read the statistical areas Shapefile into an object named `stat`:
 
 ```{r}
 stat = st_read("data/statisticalareas_demography2018.gdb", options = "ENCODING=UTF-8")
@@ -1001,14 +1003,14 @@ stat = st_read("data/statisticalareas_demography2018.gdb", options = "ENCODING=U
 
 ## Subsetting
 
-The layer has numerous columns:
+The `stat` layer has numerous columns:
 
 ```{r}
 vars = colnames(stat)
 vars
 ```
 
-For the example, we are only interested in the population estimates per age group:
+In our case, we are only interested in the subset of population estimates per age category:
 
 ```{r}
 vars = vars[grepl("age_", vars)]
@@ -1024,13 +1026,13 @@ plot(stat, max.plot = 16)
 
 ## Filling missing data
 
-One thing we may notice in Figures \@ref(fig:stat-layer) and \@ref(fig:stat-one-attr), is that many of the statistical areas have `NA` values, meaning zero (rather than unknown) population size. For all practical purposes these should be replaced with "true" zero:
+One thing we may notice in Figures \@ref(fig:stat-layer) and \@ref(fig:stat-one-attr), is that many of the statistical areas have `NA` values, meant to represent zero (rather than unknown) population size. For all practical purposes, these `NA` values should be replaced with `0` values:
 
 ```{r}
 stat[is.na(stat)] = 0
 ```
 
-The modification is demonstrated in Figure \@ref(fig:stat-layer-filled):
+The modified `stat` layer is shown in Figure \@ref(fig:stat-layer-filled):
 
 ```{r stat-layer-filled, fig.width=9, fig.height=5, fig.cap="Population estimates in the `stat` layer", out.width="100%"}
 plot(stat, max.plot = 16)
@@ -1044,11 +1046,11 @@ Next, we are going to calculate the average population structure per "Nafa", bas
 stat = st_transform(stat, st_crs(nafot))
 ```
 
-Figure \@ref(fig:stat-one-attr) shows one of the attributes in `stat` with the `nafot` layer on top:
+Figure \@ref(fig:stat-one-attr) shows one of the attributes in `stat` with the `nafot` layer on top (in black), demonstrating that the layers are aligned:
 
 ```{r stat-one-attr, fig.width=4, fig.height=6, fig.cap="The `age_10_14` attribute in `stat`, and the `nafot` layer", out.width="50%"}
 plot(stat["age_10_14"], pal = hcl.colors(12, "Reds", rev = TRUE), border = "black", lwd = 0.07, reset = FALSE)
-plot(st_geometry(nafot), add = TRUE)
+plot(st_geometry(nafot), lwd = 0.5, add = TRUE)
 ```
 
 ## Area weighted sum
@@ -1057,7 +1059,7 @@ Now, in theory, we are ready to calculate the weighted sum of population per "Na
 
 * `x`---Input layer (with values to transfer)
 * `to`---Target geometries (where to transfer values)
-* `extensive`---Spatially extensive variables which are summed, such as population (`TRUE`), or spatially intensive variables which are averaged, such as population density (`FALSE`)
+* `extensive`---Does the layer contains spatially extensive variables, which are summed, such as population (`TRUE`), or spatially intensive variables which are averaged, such as population density (`FALSE`)?
 
 In our case, the appropriate expression is:
 
@@ -1069,7 +1071,7 @@ st_interpolate_aw(stat, nafot, extensive = TRUE)
 
 However, the operation fails, since the layer contains unsapported geometry types:
 
-```{r, error=TRUE}
+```{r, warning=FALSE, error=TRUE}
 x = st_interpolate_aw(stat, nafot, extensive = TRUE)
 ```
 
@@ -1091,7 +1093,7 @@ Now, all `r nrow(stat)` features in `stat` are of type `MULTIPOLYGON`:
 as.data.frame(table(st_geometry_type(stat)))
 ```
 
-It may also be necessary to make a topological correction, depending on the version of `sf`:
+It may also be necessary to make a topological correction, depending on the version of `sf` and the linked GDAL and GEOS software:
 
 ```{r}
 stat = st_make_valid(stat)
@@ -1101,12 +1103,11 @@ stat = st_make_valid(stat)
 
 The following expression calculates the area-weighted average population properties per "Nafa":
 
-```{r}
+```{r, warning=FALSE}
 x = st_interpolate_aw(stat, nafot, extensive = TRUE)
-x$Group.1 = NULL
 ```
 
-The resulting layer is shown in Figure \@ref(fig:aw-nafa):
+The resulting layer `x` has the `nafot` geometries, along with summed population estimates from `stat`. It is shown in Figure \@ref(fig:aw-nafa):
 
 ```{r aw-nafa, fig.cap='Area-weighted counts per age group, by "Nafa"', fig.width=9, fig.height=5, out.width="100%"}
 plot(x, max.plot = 16)
@@ -1114,27 +1115,38 @@ plot(x, max.plot = 16)
 
 ## Calculating proportions
 
-Next, we extract the attribute table:
+Next, we are going to cluster the "Nafot" according to similarity in their age structure. First, we extract the attribute table of `x` with the age group estimates per "Nafa":
 
 ```{r}
 dat = st_drop_geometry(x)
-rownames(dat) = nafot$name_eng
-dat[, 1:6]
+dat[, 1:5]
 ```
 
-and use `sweep` to divid each row by its sum, transforming counts to proportions: 
+We also set the rownames as the "Nafa" name, for convenience:
+
+```{r}
+rownames(dat) = nafot$name_eng
+dat[, 1:5]
+```
+
+The "Nafot" have variable population sizes. Therefore, it is necessary to standardize the population counts by totals, to work with proportions. To do that, we use `sweep` to divide each row by its sum, thus transforming counts to proportions:
 
 ```{r}
 dat = sweep(dat, 1, rowSums(dat), "/")
-dat[, 1:6]
+dat[, 1:5]
 ```
 
 ## Hierarchical clustering
 
-Now we can calculate the distance (i.e., the dissimilarity) between Nafot age structures, and apply hierarchical clustering:
+Now we can calculate the distance (i.e., the dissimilarity) between Nafot age structures using `dist`: 
 
 ```{r}
 d = dist(dat)
+```
+
+and calculate hierarchical clusters using `hclust`:
+
+```{r}
 hc = hclust(d, "average")
 ```
 
@@ -1148,14 +1160,14 @@ groups
 
 The dendrogram and the division to groups are shown in Figure \@ref(fig:hc-dendrogram):
 
-```{r hc-dendrogram, fig.cap="Hierarchical dendrogram of age structure per Nafa", fig.width=7, fig.height=4, out.width="100%"}
+```{r hc-dendrogram, fig.cap="Hierarchical dendrogram of age structure per Nafa", fig.width=7, fig.height=5, out.width="100%"}
 plot(hc)
 rect.hclust(hc, k = k)
 ```
 
 The division to clusters can also be displayed on a map (Figure \@ref(fig:hc-map)):
 
-```{r hc-map, fig.cap="Age structure clusters on a map"}
+```{r hc-map, fig.cap="Age structure clusters on a map", fig.width=4, fig.height=6, out.width="50%"}
 nafot$group = factor(groups)
 plot(nafot["group"])
 ```
@@ -1190,16 +1202,23 @@ head(dat2)
 
 and then use `ggplot2` (Figure \@ref(fig:ggplot-1)).
 
-```{r ggplot-1, fig.cap="Distribution of age structures in each cluster of `nafot`", fig.width=8, fig.height=4, out.width="100%"}
+```{r ggplot-1, fig.cap="Distribution of age structures in each cluster of `nafot`", fig.width=12, fig.height=4, out.width="100%"}
 library(ggplot2)
-ggplot(dat2, aes(x = variable, y = value, group = name)) +
+library(ggrepel)
+ggplot(dat2, aes(x = variable, y = value, group = name, colour = name)) +
     geom_line() +
+    geom_point() +
+    geom_label_repel(data = dat2[dat2$variable == "75_up", ], aes(label = name)) +
     scale_x_discrete("Age group") +
     scale_y_continuous("Proportion") +
+    scale_colour_discrete(guide = FALSE) +
     facet_wrap(~ group) +
     theme_bw() +
     theme(
-      axis.text.x = element_text(angle = 90, vjust = 0.5)
+      axis.text.x = element_text(angle = 90, vjust = 0.5),
+      axis.text.y = element_text(angle = 90, hjust = 0.5),
+      panel.grid.minor.y = element_blank(),
+      panel.grid.major.y = element_blank()
     )
 ```
 
