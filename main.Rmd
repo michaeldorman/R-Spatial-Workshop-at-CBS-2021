@@ -1010,7 +1010,7 @@ vars = colnames(stat)
 vars
 ```
 
-In our case, we are only interested in the subset of population estimates per age category:
+In our case, we are only interested in the population estimates per age category, i.e., all variables that start with `"age_"`:
 
 ```{r}
 vars = vars[grepl("age_", vars)]
@@ -1018,7 +1018,7 @@ vars
 stat = stat[vars]
 ```
 
-The resulting subset of the `stat` layer is shown in Figure \@ref(fig:stat-layer).
+The resulting subset of the `stat` layer, now with just `r length(vars)` attributes, is shown in Figure \@ref(fig:stat-layer).
 
 ```{r stat-layer, fig.width=9, fig.height=5, fig.cap="Population estimates in the `stat` layer", out.width="100%"}
 plot(stat, max.plot = 16)
@@ -1026,7 +1026,7 @@ plot(stat, max.plot = 16)
 
 ## Filling missing data
 
-One thing we may notice in Figures \@ref(fig:stat-layer) and \@ref(fig:stat-one-attr), is that many of the statistical areas have `NA` values, meant to represent zero (rather than unknown) population size. For all practical purposes, these `NA` values should be replaced with `0` values:
+One thing we may notice in Figure \@ref(fig:stat-layer) (or printing `stat` in the console) is that many of the statistical areas have `NA` values, meant to represent zero (rather than unknown) population size (e.g., in open areas). For all practical purposes, these `NA` values should be replaced with `0` values:
 
 ```{r}
 stat[is.na(stat)] = 0
@@ -1040,13 +1040,13 @@ plot(stat, max.plot = 16)
 
 ## Reprojecting
 
-Next, we are going to calculate the average population structure per "Nafa", based on the statistical areas. First of all, we need to make sure both layers are in the same CRS:
+Next, we are going to calculate the average age structure per "Nafa" (`nafot`), based on the data from statistical areas (`stat`). First of all, we need to make sure both layers are in the same CRS (Section \@ref(vector-layer-reprojection)):
 
 ```{r}
 stat = st_transform(stat, st_crs(nafot))
 ```
 
-Figure \@ref(fig:stat-one-attr) shows one of the attributes in `stat` with the `nafot` layer on top (in black), demonstrating that the layers are aligned:
+Figure \@ref(fig:stat-one-attr) shows one of the attributes in `stat` (colored polygons with narrow borders) with the `nafot` layer on top (transparent polygons with thick black bordwer), demonstrating that the layers are aligned:
 
 ```{r stat-one-attr, fig.width=4, fig.height=6, fig.cap="The `age_10_14` attribute in `stat`, and the `nafot` layer", out.width="50%"}
 plot(stat["age_10_14"], pal = hcl.colors(12, "Reds", rev = TRUE), border = "black", lwd = 0.07, reset = FALSE)
@@ -1055,11 +1055,11 @@ plot(st_geometry(nafot), lwd = 0.5, add = TRUE)
 
 ## Area weighted sum
 
-Now, in theory, we are ready to calculate the weighted sum of population per "Nafa", using function `st_interpolate_aw`. The function requires three parameters:
+Now, in theory, we are ready to calculate the area-weighted sum of population per "Nafa", using function `st_interpolate_aw`. The function requires three parameters:
 
 * `x`---Input layer (with values to transfer)
 * `to`---Target geometries (where to transfer values)
-* `extensive`---Does the layer contains spatially extensive variables, which are summed, such as population (`TRUE`), or spatially intensive variables which are averaged, such as population density (`FALSE`)?
+* `extensive`---Does the layer contains [spatially extensive](https://en.wikipedia.org/wiki/Choropleth_map#Property:_aggregate_statistical_summaries) variables, which are summed, such as population (`TRUE`), or spatially intensive variables which are averaged, such as population density (`FALSE`)?
 
 In our case, the appropriate expression is:
 
@@ -1075,13 +1075,13 @@ However, the operation fails, since the layer contains unsapported geometry type
 x = st_interpolate_aw(stat, nafot, extensive = TRUE)
 ```
 
-namely, `MULTISURFACE` geometries:
+namely, `MULTISURFACE` geometries (detected using `st_geometry_type`):
 
 ```{r}
 as.data.frame(table(st_geometry_type(stat)))
 ```
 
-We can "cast" the latter to `MULTIPOLYGON`, as follows:
+We can "cast" the latter to `MULTIPOLYGON`, as follows, to avoid the unsupported geometry type:
 
 ```{r}
 stat = st_cast(stat, "MULTIPOLYGON")
