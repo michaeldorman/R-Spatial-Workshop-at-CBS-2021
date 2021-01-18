@@ -955,7 +955,7 @@ nafot
 The calculated total lengths per "Nafa" are shown in Figure \@ref(fig:length-per-nafa):
 
 ```{r length-per-nafa, fig.cap="Total railway length per Nafa", out.width="50%", warning=FALSE, fig.width=4, fig.height=6}
-plot(nafot[, "length"])
+plot(nafot["length"])
 ```
 
 ## Calculating density

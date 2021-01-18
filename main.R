@@ -214,7 +214,7 @@ nafot
 
 
 ## ----length-per-nafa, fig.cap="Total railway length per Nafa", out.width="50%", warning=FALSE, fig.width=4, fig.height=6----
-plot(nafot[, "length"])
+plot(nafot["length"])
 
 
 ## ------------------------------------------------------
