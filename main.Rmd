@@ -21,7 +21,7 @@ pagetitle: Using R for Spatial Data Analysis
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(cache = FALSE, echo = TRUE, collapse = TRUE, fig.align = "center")
-# knitr::purl("main.Rmd", documentation = 2)
+# knitr::purl("main.Rmd", documentation = 1)
 ```
 
 # Setup: sample data {-}
@@ -36,17 +36,13 @@ For more on setting up the environment and sample data, see the [preparation](pr
 
 Table: (\#tab:sample-data) Sample data
 
-The data and code for this lecture can be downloaded from:
+The data for this tutorial can be downloaded from:
 
 https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/data.zip
 
 A script with the R code of this document is available here:
 
 https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/main.R
-
-The Rmarkdown file is available here:
-
-https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/raw/main/preparation.Rmd
 
 All of the materials are also available on [GitHub](https://github.com/michaeldorman/R-Spatial-Workshop-at-CBS-2021/).
 
@@ -266,7 +262,7 @@ When:
 
 we may want to combine R with a (spatial) database.
 
-Package `sf` combined with `RPostgreSQL` can be used to read from, and write to, a **PostGIS** spatial database. First, we need to create a connection object:
+Package `sf` (Section \@ref(the-sf-package)) combined with `RPostgreSQL` can be used to read from, and write to, a **PostGIS** spatial database. First, we need to create a connection object:
 
 ```{r, eval=FALSE}
 library(sf)
@@ -349,7 +345,7 @@ par(opar)
 
 The `sf` package depends on several external software components (installed along with the R package^[in Windows.]), most importantly **GDAL**, **GEOS** and **PROJ** (Figure \@ref(fig:sf-dependencies)). These well-tested and popular open-source components are common to numerous open-source and commercial software for spatial analysis, such as **QGIS** and **PostGIS**.
 
-```{r sf-dependencies, echo=FALSE, fig.cap="`sf` package dependencies (https://github.com/edzer/rstudio_conf)", out.width="100%"}
+```{r sf-dependencies, echo=FALSE, fig.cap="`sf` package dependencies (source: https://github.com/edzer/rstudio_conf)", out.width="100%"}
 knitr::include_graphics("images/sf_deps.png")
 ```
 
@@ -371,7 +367,7 @@ Table: (\#tab:structures-package-sf) Spatial data structures in package `sf`
 
 The `sf` class represents a vector layer by extending the `data.frame` class, supplementing it with a **geometry column**. This is similar to the way that spatial databases are structured. For example, the sample dataset shown in Figure \@ref(fig:nc-geometry-column) represents a polygonal layer with three features and six non-spatial attributes. The attributes refer to demographic and epidemiological attributes of US counties, such as the number of births in 1974 (`BIR74`), the number of sudden infant death cases in 1974 (`SID74`), and so on. The seventh column is the *geometry column*, containing the polygon geometries. 
 
-```{r nc-geometry-column, echo=FALSE, fig.cap="Structure of an `sf` object (https://cran.r-project.org/web/packages/sf/vignettes/sf1.html)", out.width="100%"}
+```{r nc-geometry-column, echo=FALSE, fig.cap="Structure of an `sf` object (source: https://cran.r-project.org/web/packages/sf/vignettes/sf1.html)", out.width="100%"}
 knitr::include_graphics("images/sf.png")
 ```
 
